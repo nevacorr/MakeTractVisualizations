@@ -326,7 +326,7 @@ core_arc = np.median(np.asarray(set_number_of_points(arc_t1w, 100)), axis=0)
 # core_cst = np.median(np.asarray(set_number_of_points(cst_t1w, 100)), axis=0)
 
 # Edited
-# core_arc = core_arc[20:80]
+core_arc = core_arc[20:80]
 # core_cst = core_cst[20:80]
 
 from dipy.stats.analysis import afq_profile
@@ -336,8 +336,8 @@ sft_arc.to_vox()
 # arc_profile = afq_profile(fa, sft_arc.streamlines, affine=np.eye(4))
 arc_profile = np.concatenate([
     np.full(30, 10),  # Elements 0 to 29 -> 10
-    np.full(20, 20),  # Elements 30 to 50 -> 20
-    np.full(40, 10)    # Elements 51 to 100 -> 10
+    np.full(21, 20),  # Elements 30 to 50 -> 20
+    np.full(9, 10)    # Elements 51 to 59 -> 10
 ])
 # cst_profile = afq_profile(fa, sft_cst.streamlines, affine=np.eye(4))
 

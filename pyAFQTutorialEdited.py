@@ -138,9 +138,33 @@ if os.environ.get("XVFB", False):
 # streamline based on the RAS orientation, and we set the line width to 8.
 
 def lines_as_tubes(sl, line_width, **kwargs):
-    line_actor = actor.line(sl, **kwargs)
+
+    #Edited
+
+    kwargs.pop("colors", None)
+
+    # Create a list to hold color arrays for each line
+    colors_list = []
+
+    for line in sl:
+        num_points = len(line)  # Get number of points in the current tube
+
+        # Define color mapping
+        cyan = [0, 1, 1]   # RGB for Cyan
+        yellow = [1, 1, 0] # RGB for Yellow
+
+        # Create a color array for this tube
+        colors = np.zeros((num_points, 3))
+        colors[:num_points // 4] = cyan  # First quarter (cyan)
+        colors[num_points // 4: 3 * num_points // 4] = yellow  # Middle half (yellow)
+        colors[3 * num_points // 4:] = cyan  # Last quarter (cyan)
+
+        colors_list.append(colors)  # Store colors for this tube
+
+    line_actor = actor.line(sl, colors=colors_list, **kwargs)
     line_actor.GetProperty().SetRenderLinesAsTubes(1)
     line_actor.GetProperty().SetLineWidth(line_width)
+
     return line_actor
 
 
@@ -325,7 +349,16 @@ from dipy.tracking.streamline import set_number_of_points
 core_arc = np.median(np.asarray(set_number_of_points(arc_t1w, 100)), axis=0)
 # core_cst = np.median(np.asarray(set_number_of_points(cst_t1w, 100)), axis=0)
 
+def modify_colors(arr):
+    new_color = np.array([0, 0, 255])
+
+    modified_arr = arr.copy()
+    modified_arr[40:80] = new_color
+    return modified_arr
+
+
 # Edited
+# core_arc = modify_colors(core_arc)
 core_arc = core_arc[20:80]
 # core_cst = core_cst[20:80]
 
@@ -360,12 +393,12 @@ arc_actor = lines_as_tubes(arc_t1w, 8, colors=color_arc, opacity=0.1)
 
 #Edited
 #This line adds all the many bundles of the tract to the visualization
-# scene.add(arc_actor)
+scene.add(arc_actor)
 # scene.add(cst_actor)
 for slicer in slicers:
     scene.add(slicer)
 #This line adds just the core of the bundle to the visualization
-scene.add(core_arc_actor)
+# scene.add(core_arc_actor)
 # scene.add(core_cst_actor)
 
 window.record(

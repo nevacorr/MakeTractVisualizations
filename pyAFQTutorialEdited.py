@@ -61,7 +61,6 @@ afq_path = op.join(
 bundle_path = op.join(afq_path,
                       'bundles')
 
-
 #############################################################################
 # Read data into memory
 # ----------------------
@@ -88,7 +87,6 @@ sft_arc = load_trk(op.join(bundle_path,
 # you find this confusing, you can brush up on this topic in the
 # `nibabel documentation <https://nipy.org/nibabel/coordinate_systems.html>`_).
 
-
 t1w_img = nib.load(op.join(deriv_path,
                            'qsiprep/sub-NDARAA948VFH/anat/sub-NDARAA948VFH_desc-preproc_T1w.nii.gz'))
 t1w = t1w_img.get_fdata()
@@ -98,24 +96,6 @@ arc_t1w = transform_streamlines(sft_arc.streamlines,
                                 np.linalg.inv(t1w_img.affine))
 # cst_t1w = transform_streamlines(sft_cst.streamlines,
 #                                 np.linalg.inv(t1w_img.affine))
-
-
-#############################################################################
-#
-# .. note::
-#   A virtual frame buffer is needed if you are running this example on
-#   a machine that is not connected to a display ("headless"). If this is
-#   the case, you can either set an environment variable called `XVFB` to `1`
-#   or you can deindent the following code (and comment out the `if` statement)
-#   to initialize the virtual frame buffer.
-
-if os.environ.get("XVFB", False):
-    print("Initializing XVFB")
-    import xvfbwrapper
-    from xvfbwrapper import Xvfb
-
-    vdisplay = Xvfb()
-    vdisplay.start()
 
 
 #############################################################################
@@ -261,9 +241,9 @@ for slicer in slicers:
 # We can use the information we have gleaned to set the camera on subsequent
 # visualization that use this scene object.
 
-scene.set_camera(position=(238.04, 174.48, 143.04),
-                 focal_point=(96.32, 110.34, 84.48),
-                 view_up=(-0.33, -0.12, 0.94))
+scene.set_camera(position=(779.99, 132.71, 64.81),
+                 focal_point=(96.00, 114.00, 96.00),
+                 view_up=(0.05, 0.00, 1.00))
 
 #############################################################################
 # Record the visualization
@@ -409,6 +389,8 @@ window.record(
 # Edit to original tutorial
 window.show(scene, size=(1200, 1200), reset_camera=False)
 
+
+scene.camera_info()
 #############################################################################
 # Adding ROIs
 # -----------

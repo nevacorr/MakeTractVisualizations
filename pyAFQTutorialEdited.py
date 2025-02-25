@@ -403,7 +403,7 @@ for slicer in slicers:
 
 window.record(
     scene,
-    out_path=op.join(out_folder, 'arc_cst3.png'),
+    out_path=op.join(out_folder, 'arcuate_streamlines.png'),
     size=(2400, 2400))
 
 # Edit to original tutorial

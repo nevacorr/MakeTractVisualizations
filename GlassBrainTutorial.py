@@ -3,6 +3,8 @@
 Visualizing AFQ derivatives
 ============================
 
+From: https://github.com/tractometry/pyAFQ/blob/main/examples/tutorial_examples/plot_003_viz.py
+
 Visualizing the results of a pyAFQ analysis is useful because it allows us to
 inspect the results of the analysis and to communicate the results to others.
 The pyAFQ pipeline produces a number of different kinds of outputs, including

@@ -258,7 +258,7 @@ out_folder = "/Users/neva/PycharmProjects/VisualizeTracts"
 # os.makedirs(out_folder, exist_ok=True)
 window.record(
     scene,
-    out_path=op.join(out_folder, 'tmp.png'),
+    out_path=op.join(out_folder, 'highres_view.png'),
     size=(2400, 2400))
 
 
@@ -328,14 +328,6 @@ window.record(
 from dipy.tracking.streamline import set_number_of_points
 core_arc = np.median(np.asarray(set_number_of_points(arc_t1w, 100)), axis=0)
 # core_cst = np.median(np.asarray(set_number_of_points(cst_t1w, 100)), axis=0)
-
-def modify_colors(arr):
-    new_color = np.array([0, 0, 255])
-
-    modified_arr = arr.copy()
-    modified_arr[40:80] = new_color
-    return modified_arr
-
 
 # Edited
 # core_arc = modify_colors(core_arc)
@@ -415,52 +407,52 @@ scene.camera_info()
 #   be visualized provided an array with a binary representation of the volume #   enclosed in this boundary
 
 
-from dipy.align import resample
-
-waypoint1 = nib.load(
-    op.join(
-        afq_path,
-        "ROIs", "sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_desc-ROI-ARC_L-1-include.nii.gz"))
-
-waypoint2 = nib.load(
-    op.join(
-        afq_path,
-        "ROIs", "sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_desc-ROI-ARC_L-2-include.nii.gz"))
-
-waypoint1_xform = resample(waypoint1, t1w_img)
-waypoint2_xform = resample(waypoint2, t1w_img)
-waypoint1_data = waypoint1_xform.get_fdata() > 0
-waypoint2_data = waypoint2_xform.get_fdata() > 0
-
-scene.clear()
-
-arc_actor = lines_as_tubes(arc_t1w, 8, colors=color_arc)
-# cst_actor = lines_as_tubes(cst_t1w, 8, colors=color_cst)
-
-scene.add(arc_actor)
-# scene.add(cst_actor)
-for slicer in slicers:
-    scene.add(slicer)
-
-surface_color = tab20.colors[0]
-
-waypoint1_actor = actor.contour_from_roi(waypoint1_data,
-                                         color=surface_color,
-                                         opacity=0.5)
-
-waypoint2_actor = actor.contour_from_roi(waypoint2_data,
-                                         color=surface_color,
-                                         opacity=0.5)
-
-
-scene.add(waypoint1_actor)
-scene.add(waypoint2_actor)
-
-
-window.record(
-    scene,
-    out_path=op.join(out_folder, 'arc_cst4.png'),
-    size=(2400, 2400))
+# from dipy.align import resample
+#
+# waypoint1 = nib.load(
+#     op.join(
+#         afq_path,
+#         "ROIs", "sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_desc-ROI-ARC_L-1-include.nii.gz"))
+#
+# waypoint2 = nib.load(
+#     op.join(
+#         afq_path,
+#         "ROIs", "sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_desc-ROI-ARC_L-2-include.nii.gz"))
+#
+# waypoint1_xform = resample(waypoint1, t1w_img)
+# waypoint2_xform = resample(waypoint2, t1w_img)
+# waypoint1_data = waypoint1_xform.get_fdata() > 0
+# waypoint2_data = waypoint2_xform.get_fdata() > 0
+#
+# scene.clear()
+#
+# arc_actor = lines_as_tubes(arc_t1w, 8, colors=color_arc)
+# # cst_actor = lines_as_tubes(cst_t1w, 8, colors=color_cst)
+#
+# scene.add(arc_actor)
+# # scene.add(cst_actor)
+# for slicer in slicers:
+#     scene.add(slicer)
+#
+# surface_color = tab20.colors[0]
+#
+# waypoint1_actor = actor.contour_from_roi(waypoint1_data,
+#                                          color=surface_color,
+#                                          opacity=0.5)
+#
+# waypoint2_actor = actor.contour_from_roi(waypoint2_data,
+#                                          color=surface_color,
+#                                          opacity=0.5)
+#
+#
+# scene.add(waypoint1_actor)
+# scene.add(waypoint2_actor)
+#
+#
+# window.record(
+#     scene,
+#     out_path=op.join(out_folder, 'arc_cst4.png'),
+#     size=(2400, 2400))
 
 #############################################################################
 # Making a Figure out of many fury panels
@@ -472,11 +464,11 @@ window.record(
 # convenient methods from pyAFQ.
 
 pf = PanelFigure(3, 2, 6, 9)
-pf.add_img(op.join(out_folder, 'arc_cst1.png'), 0, 0)
-pf.add_img(op.join(out_folder, 'arc_cst2.png'), 1, 0)
-pf.add_img(op.join(out_folder, 'arc_cst3.png'), 0, 1)
-pf.add_img(op.join(out_folder, 'arc_cst4.png'), 1, 1)
-pf.format_and_save_figure(f"arc_cst_fig.png")
+pf.add_img(op.join(out_folder, 'arcuate_streamlines.png'), 0, 0)
+pf.add_img(op.join(out_folder, 'arcuate_streamlines.png'), 1, 0)
+pf.add_img(op.join(out_folder, 'tmp.png'), 0, 1)
+pf.add_img(op.join(out_folder, 'tmp2.png'), 1, 1)
+pf.format_and_save_figure(f"arcuate_fig.png")
 
 #############################################################################
 #

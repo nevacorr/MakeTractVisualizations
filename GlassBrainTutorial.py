@@ -78,8 +78,8 @@ fa_img = nib.load(op.join(afq_path,
 fa = fa_img.get_fdata()
 sft_arc = load_trk(op.join(bundle_path,
                            'sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_space-RASMM_model-CSD_desc-prob-afq-ARC_L_tractography.trk'), fa_img)
-sft_cst = load_trk(op.join(bundle_path,
-                           'sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_space-RASMM_model-CSD_desc-prob-afq-CST_L_tractography.trk'), fa_img)
+#sft_cst = load_trk(op.join(bundle_path,
+     #                      'sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_space-RASMM_model-CSD_desc-prob-afq-CST_L_tractography.trk'), fa_img)
 
 #############################################################################
 # Transform into the T1w reference frame
@@ -96,30 +96,11 @@ t1w_img = nib.load(op.join(deriv_path,
                            'qsiprep/sub-NDARAA948VFH/anat/sub-NDARAA948VFH_desc-preproc_T1w.nii.gz'))
 t1w = t1w_img.get_fdata()
 sft_arc.to_rasmm()
-sft_cst.to_rasmm()
+#sft_cst.to_rasmm()
 arc_t1w = transform_streamlines(sft_arc.streamlines,
                                 np.linalg.inv(t1w_img.affine))
-cst_t1w = transform_streamlines(sft_cst.streamlines,
-                                np.linalg.inv(t1w_img.affine))
-
-
-#############################################################################
-#
-# .. note::
-#   A virtual frame buffer is needed if you are running this example on
-#   a machine that is not connected to a display ("headless"). If this is
-#   the case, you can either set an environment variable called `XVFB` to `1`
-#   or you can deindent the following code (and comment out the `if` statement)
-#   to initialize the virtual frame buffer.
-
-if os.environ.get("XVFB", False):
-    print("Initializing XVFB")
-    import xvfbwrapper
-    from xvfbwrapper import Xvfb
-
-    vdisplay = Xvfb()
-    vdisplay.start()
-
+#cst_t1w = transform_streamlines(sft_cst.streamlines,
+#                                np.linalg.inv(t1w_img.affine))
 
 #############################################################################
 # Visualizing bundles with principal direction coloring
@@ -141,14 +122,37 @@ if os.environ.get("XVFB", False):
 # streamline based on the RAS orientation, and we set the line width to 8.
 
 def lines_as_tubes(sl, line_width, **kwargs):
-    line_actor = actor.line(sl, **kwargs)
+
+    # Edited
+    kwargs.pop("colors", None)
+
+    # Create a list to hold color arrays for each line
+    colors_list = []
+
+    for line in sl:
+        num_points = len(line)  # Get number of points in the current tube
+
+        # Define color mapping
+        cyan = [0, 1, 1]  # RGB for Cyan
+        yellow = [1, 1, 0]  # RGB for Yellow
+
+        # Create a color array for this tube
+        colors = np.zeros((num_points, 3))
+        colors[:num_points // 4] = cyan  # First quarter (cyan)
+        colors[num_points // 4: 3 * num_points // 4] = yellow  # Middle half (yellow)
+        colors[3 * num_points // 4:] = cyan  # Last quarter (cyan)
+
+        colors_list.append(colors)  # Store colors for this tube
+
+    line_actor = actor.line(sl, colors=colors_list, **kwargs)
     line_actor.GetProperty().SetRenderLinesAsTubes(1)
     line_actor.GetProperty().SetLineWidth(line_width)
+
     return line_actor
 
 
 arc_actor = lines_as_tubes(arc_t1w, 8)
-cst_actor = lines_as_tubes(cst_t1w, 8)
+#cst_actor = lines_as_tubes(cst_t1w, 8)
 
 
 #############################################################################
@@ -208,7 +212,7 @@ slicers = slice_volume(t1w, x=t1w.shape[0] // 2, z=t1w.shape[-1] // 3)
 scene = window.Scene()
 
 scene.add(arc_actor)
-scene.add(cst_actor)
+# scene.add(cst_actor)
 for slicer in slicers:
     scene.add(slicer)
 
@@ -240,10 +244,11 @@ for slicer in slicers:
 # We can use the information we have gleaned to set the camera on subsequent
 # visualization that use this scene object.
 
+window.show(scene, size=(1200, 1200), reset_camera=False)
 
-scene.set_camera(position=(238.04, 174.48, 143.04),
-                 focal_point=(96.32, 110.34, 84.48),
-                 view_up=(-0.33, -0.12, 0.94))
+scene.set_camera(position=(779.99, 132.71, 64.81),
+                 focal_point=(96.00, 114.00, 96.00),
+                 view_up=(0.05, 0.00, 1.00))
 
 #############################################################################
 # Record the visualization
@@ -253,11 +258,12 @@ scene.set_camera(position=(238.04, 174.48, 143.04),
 # image into a png file. We use a pretty high resolution here (2400 by 2400) so
 # that we get a nice crisp image. That also means the file is pretty large.
 
-out_folder = op.join(afd.afq_home, "VizExample")
-os.makedirs(out_folder, exist_ok=True)
+# out_folder = op.join(afd.afq_home, "VizExample")
+out_folder = "/Users/neva/PycharmProjects/VisualizeTracts"
+# os.makedirs(out_folder, exist_ok=True)
 window.record(
     scene=scene,
-    out_path=op.join(out_folder, 'arc_cst1.png'),
+    out_path=op.join(out_folder, 'highres_view.png'),
     size=(2400, 2400))
 
 
@@ -280,18 +286,18 @@ color_arc = tab20.colors[18]
 color_cst = tab20.colors[2]
 
 arc_actor = lines_as_tubes(arc_t1w, 8, colors=color_arc)
-cst_actor = lines_as_tubes(cst_t1w, 8, colors=color_cst)
+# cst_actor = lines_as_tubes(cst_t1w, 8, colors=color_cst)
 
 scene.clear()
 
 scene.add(arc_actor)
-scene.add(cst_actor)
+# scene.add(cst_actor)
 for slicer in slicers:
     scene.add(slicer)
 
 window.record(
     scene=scene,
-    out_path=op.join(out_folder, 'arc_cst2.png'),
+    out_path=op.join(out_folder, 'tmp2.png'),
     size=(2400, 2400))
 
 
@@ -326,14 +332,24 @@ window.record(
 
 from dipy.tracking.streamline import set_number_of_points
 core_arc = np.median(np.asarray(set_number_of_points(arc_t1w, 100)), axis=0)
-core_cst = np.median(np.asarray(set_number_of_points(cst_t1w, 100)), axis=0)
+# core_cst = np.median(np.asarray(set_number_of_points(cst_t1w, 100)), axis=0)
 
+#Edited
+# core_arc = modify_colors(core_arc)
+core_arc = core_arc[20:80]
 
-from dipy.stats.analysis import afq_profile
+# from dipy.stats.analysis import afq_profile
 sft_arc.to_vox()
-sft_cst.to_vox()
-arc_profile = afq_profile(fa, sft_arc.streamlines, affine=np.eye(4))
-cst_profile = afq_profile(fa, sft_cst.streamlines, affine=np.eye(4))
+# sft_cst.to_vox()
+# Edited
+# arc_profile = afq_profile(fa, sft_arc.streamlines, affine=np.eye(4))
+arc_profile = np.concatenate([
+    np.full(30, 10),  # Elements 0 to 29 -> 10
+    np.full(21, 20),  # Elements 30 to 50 -> 20
+    np.full(9, 10)    # Elements 51 to 59 -> 10
+])
+
+# cst_profile = afq_profile(fa, sft_cst.streamlines, affine=np.eye(4))
 
 core_arc_actor = lines_as_tubes(
     [core_arc],
@@ -341,30 +357,36 @@ core_arc_actor = lines_as_tubes(
     colors=create_colormap(arc_profile, name='viridis')
 )
 
-core_cst_actor = lines_as_tubes(
-    [core_cst],
-    40,
-    colors=create_colormap(cst_profile, name='viridis')
-)
+# core_cst_actor = lines_as_tubes(
+#     [core_cst],
+#     40,
+#     colors=create_colormap(cst_profile, name='viridis')
+# )
 
 scene.clear()
 
 arc_actor = lines_as_tubes(arc_t1w, 8, colors=color_arc, opacity=0.1)
-cst_actor = lines_as_tubes(cst_t1w, 8, colors=color_cst, opacity=0.1)
+# cst_actor = lines_as_tubes(cst_t1w, 8, colors=color_cst, opacity=0.1)
 
+#Edited
+#This line adds all the many bundles of the tract to the visualization
 scene.add(arc_actor)
-scene.add(cst_actor)
+# scene.add(cst_actor)
 for slicer in slicers:
     scene.add(slicer)
-scene.add(core_arc_actor)
-scene.add(core_cst_actor)
+#This line adds just the core of the bundle to the visualization
+# scene.add(core_arc_actor)
+# scene.add(core_cst_actor)
 
 window.record(
     scene=scene,
-    out_path=op.join(out_folder, 'arc_cst3.png'),
+    out_path=op.join(out_folder, 'arcuate_streamlines.png'),
     size=(2400, 2400))
 
+# Edit to original tutorial
+window.show(scene, size=(1200, 1200), reset_camera=False)
 
+scene.camera_info()
 #############################################################################
 # Adding ROIs
 # -----------
@@ -389,52 +411,52 @@ window.record(
 #   be visualized provided an array with a binary representation of the volume #   enclosed in this boundary
 
 
-from dipy.align import resample
-
-waypoint1 = nib.load(
-    op.join(
-        afq_path,
-        "ROIs", "sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_desc-ROI-ARC_L-1-include.nii.gz"))
-
-waypoint2 = nib.load(
-    op.join(
-        afq_path,
-        "ROIs", "sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_desc-ROI-ARC_L-2-include.nii.gz"))
-
-waypoint1_xform = resample(waypoint1, t1w_img)
-waypoint2_xform = resample(waypoint2, t1w_img)
-waypoint1_data = waypoint1_xform.get_fdata() > 0
-waypoint2_data = waypoint2_xform.get_fdata() > 0
-
-scene.clear()
-
-arc_actor = lines_as_tubes(arc_t1w, 8, colors=color_arc)
-cst_actor = lines_as_tubes(cst_t1w, 8, colors=color_cst)
-
-scene.add(arc_actor)
-scene.add(cst_actor)
-for slicer in slicers:
-    scene.add(slicer)
-
-surface_color = tab20.colors[0]
-
-waypoint1_actor = actor.contour_from_roi(waypoint1_data,
-                                         color=surface_color,
-                                         opacity=0.5)
-
-waypoint2_actor = actor.contour_from_roi(waypoint2_data,
-                                         color=surface_color,
-                                         opacity=0.5)
-
-
-scene.add(waypoint1_actor)
-scene.add(waypoint2_actor)
-
-
-window.record(
-    scene=scene,
-    out_path=op.join(out_folder, 'arc_cst4.png'),
-    size=(2400, 2400))
+# from dipy.align import resample
+#
+# waypoint1 = nib.load(
+#     op.join(
+#         afq_path,
+#         "ROIs", "sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_desc-ROI-ARC_L-1-include.nii.gz"))
+#
+# waypoint2 = nib.load(
+#     op.join(
+#         afq_path,
+#         "ROIs", "sub-NDARAA948VFH_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_desc-ROI-ARC_L-2-include.nii.gz"))
+#
+# waypoint1_xform = resample(waypoint1, t1w_img)
+# waypoint2_xform = resample(waypoint2, t1w_img)
+# waypoint1_data = waypoint1_xform.get_fdata() > 0
+# waypoint2_data = waypoint2_xform.get_fdata() > 0
+#
+# scene.clear()
+#
+# arc_actor = lines_as_tubes(arc_t1w, 8, colors=color_arc)
+# cst_actor = lines_as_tubes(cst_t1w, 8, colors=color_cst)
+#
+# scene.add(arc_actor)
+# scene.add(cst_actor)
+# for slicer in slicers:
+#     scene.add(slicer)
+#
+# surface_color = tab20.colors[0]
+#
+# waypoint1_actor = actor.contour_from_roi(waypoint1_data,
+#                                          color=surface_color,
+#                                          opacity=0.5)
+#
+# waypoint2_actor = actor.contour_from_roi(waypoint2_data,
+#                                          color=surface_color,
+#                                          opacity=0.5)
+#
+#
+# scene.add(waypoint1_actor)
+# scene.add(waypoint2_actor)
+#
+#
+# window.record(
+#     scene=scene,
+#     out_path=op.join(out_folder, 'arc_cst4.png'),
+#     size=(2400, 2400))
 
 #############################################################################
 # Visualizing tracts and tract profiles with a "glass brain"
@@ -482,6 +504,8 @@ window.record(
     out_path=op.join(out_folder, 'arc_cst5.png'),
     size=(2400, 2400))
 
+window.show(scene, size=(1200, 1200), reset_camera=False)
+
 #############################################################################
 # Making a Figure out of many fury panels
 # ---------------------------------------
@@ -492,11 +516,11 @@ window.record(
 # convenient methods from pyAFQ.
 
 pf = PanelFigure(3, 2, 6, 9)
-pf.add_img(op.join(out_folder, 'arc_cst1.png'), 0, 0)
-pf.add_img(op.join(out_folder, 'arc_cst2.png'), 1, 0)
-pf.add_img(op.join(out_folder, 'arc_cst3.png'), 0, 1)
-pf.add_img(op.join(out_folder, 'arc_cst5.png'), 1, 1)
-pf.format_and_save_figure(f"arc_cst_fig.png")
+pf.add_img(op.join(out_folder, 'arcuate_streamlines.png'), 0, 0)
+pf.add_img(op.join(out_folder, 'arcuate_streamlines.png'), 1, 0)
+pf.add_img(op.join(out_folder, 'tmp2.png'), 0, 1)
+pf.add_img(op.join(out_folder, 'tmp2.png'), 1, 1)
+pf.format_and_save_figure(f"arcuate_fig.png")
 
 #############################################################################
 #

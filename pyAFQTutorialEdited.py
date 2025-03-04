@@ -241,6 +241,8 @@ for slicer in slicers:
 # We can use the information we have gleaned to set the camera on subsequent
 # visualization that use this scene object.
 
+window.show(scene, size=(1200, 1200), reset_camera=False)
+
 scene.set_camera(position=(779.99, 132.71, 64.81),
                  focal_point=(96.00, 114.00, 96.00),
                  view_up=(0.05, 0.00, 1.00))

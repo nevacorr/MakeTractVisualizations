@@ -297,7 +297,7 @@ for slicer in slicers:
 
 window.record(
     scene=scene,
-    out_path=op.join(out_folder, 'tmp2.png'),
+    out_path=op.join(out_folder, 'tmp.png'),
     size=(2400, 2400))
 
 

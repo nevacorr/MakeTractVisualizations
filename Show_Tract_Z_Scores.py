@@ -21,6 +21,7 @@ import os
 import os.path as op
 import nibabel as nib
 import numpy as np
+import pandas as pd
 
 from dipy.io.streamline import load_trk
 from dipy.tracking.streamline import transform_streamlines
@@ -31,6 +32,14 @@ from fury.colormap import create_colormap
 
 import AFQ.data.fetch as afd
 from AFQ.viz.utils import PanelFigure
+
+from Utility_Functions import load_data
+
+##################
+z_score_filepath = "/Users/neva/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
+md_z_score_filename = "md_100_node_stats_female.csv"
+# Load zscore values
+zvect, pvect = load_data(z_score_filepath, md_z_score_filename)
 
 ##############################################################################
 # Get some data from HBN POD2
@@ -47,7 +56,7 @@ from AFQ.viz.utils import PanelFigure
 # preprocessed data, as well as the pyAFQ-processed data (Note that this
 # will take up about 1.75 GB of disk space):
 
-afd.fetch_hbn_preproc(["NDARAA948VFH"])
+# afd.fetch_hbn_preproc(["NDARAA948VFH"])
 study_path = afd.fetch_hbn_afq(["NDARAA948VFH"])[1]
 
 deriv_path = op.join(
@@ -467,11 +476,27 @@ scene.add(brain_actor)
 for sl in arc_t1w:
     # interpolate the 100 tract profiles values to match the number of points
     # in the streamline:
-    interpolated_values = np.interp(np.linspace(0, 1, len(sl)),
-                                    np.linspace(0, 1, len(arc_profile)),
-                                    arc_profile)
-    colors = create_colormap(interpolated_values, name='Spectral')
-    line_actor = lines_as_tubes([sl], 8, colors=colors)
+    interpolated_z_values = np.interp(np.linspace(0, 1, len(sl)),
+                                    np.linspace(0, 1, len(zvect)),
+                                    zvect)
+
+    interpolated_p_values = np.interp(np.linspace(0, 1, len(sl)),
+                                      np.linspace(0, 1, len(pvect)),
+                                      pvect)
+
+    # Apply a colormap to non significant values
+    colors = create_colormap(interpolated_z_values, name='Blues')
+
+    # Define a solid light yellow color
+    light_yellow = np.array([1, 1, 0.6])
+
+    # Find indices where the interpolated p_values <0.05
+    significant_mask = interpolated_p_values < 0.05
+
+    # Override colors for significant values
+    colors[significant_mask] = light_yellow
+
+    line_actor = lines_as_tubes([sl], 4, colors=colors)
     scene.add(line_actor)
 
 scene.background((1, 1, 1))

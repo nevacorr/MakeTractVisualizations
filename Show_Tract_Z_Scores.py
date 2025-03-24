@@ -443,6 +443,20 @@ window.record(
     out_path=op.join(out_folder, 'arc_cst4.png'),
     size=(2400, 2400))
 
+# Function to trim streamlines to the central 60%
+def trim_to_central_60(streamlines):
+    trimmed_streamlines = []
+    for streamline in streamlines:
+        # Calculate the number of points to keep (60% of the streamline)
+        num_points = len(streamline)
+        start_index = int(num_points * 0.2)  # 20% from the start
+        end_index = int(num_points * 0.8)    # 20% from the end
+        trimmed_streamline = streamline[start_index:end_index]
+        trimmed_streamlines.append(trimmed_streamline)
+    return trimmed_streamlines
+
+arc_trimmed = trim_to_central_60(arc_t1w)
+
 #############################################################################
 # Visualizing tracts and tract profiles with a "glass brain"
 # ----------------------------------------------------------
@@ -473,7 +487,7 @@ brain_actor = actor.contour_from_roi(brain_mask_data,
 
 scene.add(brain_actor)
 
-for sl in arc_t1w:
+for sl in arc_trimmed:
     # interpolate the 100 tract profiles values to match the number of points
     # in the streamline:
     interpolated_z_values = np.interp(np.linspace(0, 1, len(sl)),
@@ -484,11 +498,12 @@ for sl in arc_t1w:
                                       np.linspace(0, 1, len(pvect)),
                                       pvect)
 
-    # Apply a colormap to non significant values
-    colors = create_colormap(interpolated_z_values, name='Blues')
+    # Apply a colormap to non significant values. Make them all blue
+    colors = np.tile([0, 0, 1], (len(interpolated_z_values), 1))
+    # colors = create_colormap(interpolated_z_values, name='Blues')
 
-    # Define a solid light yellow color
-    light_yellow = np.array([1, 1, 0.6])
+    # Define a solid yellow color
+    light_yellow = np.array([1, 1, 1])
 
     # Find indices where the interpolated p_values <0.05
     significant_mask = interpolated_p_values < 0.05
@@ -496,7 +511,7 @@ for sl in arc_t1w:
     # Override colors for significant values
     colors[significant_mask] = light_yellow
 
-    line_actor = lines_as_tubes([sl], 4, colors=colors)
+    line_actor = lines_as_tubes([sl], 2, colors=colors)
     scene.add(line_actor)
 
 scene.background((1, 1, 1))

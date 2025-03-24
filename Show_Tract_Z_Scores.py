@@ -30,7 +30,6 @@ from dipy.tracking.streamline import transform_streamlines
 from fury import actor, window
 from fury.colormap import create_colormap
 
-
 import AFQ.data.fetch as afd
 from AFQ.viz.utils import PanelFigure
 
@@ -244,7 +243,7 @@ for slicer in slicers:
 # We can use the information we have gleaned to set the camera on subsequent
 # visualization that use this scene object.
 
-window.show(scene, size=(1200, 1200), reset_camera=False)
+# window.show(scene, size=(1200, 1200), reset_camera=False)
 
 scene.set_camera(position=(779.99, 132.71, 64.81),
                  focal_point=(96.00, 114.00, 96.00),
@@ -261,10 +260,10 @@ scene.set_camera(position=(779.99, 132.71, 64.81),
 # out_folder = op.join(afd.afq_home, "VizExample")
 out_folder = "/Users/neva/PycharmProjects/VisualizeTracts"
 # os.makedirs(out_folder, exist_ok=True)
-window.record(
-    scene=scene,
-    out_path=op.join(out_folder, 'highres_view.png'),
-    size=(2400, 2400))
+# window.record(
+#     scene=scene,
+#     out_path=op.join(out_folder, 'highres_view.png'),
+#     size=(2400, 2400))
 
 
 ############################################################################
@@ -290,15 +289,15 @@ arc_actor = lines_as_tubes(arc_t1w, 8, colors=color_arc)
 
 scene.clear()
 
-scene.add(arc_actor)
-# scene.add(cst_actor)
-for slicer in slicers:
-    scene.add(slicer)
-
-window.record(
-    scene=scene,
-    out_path=op.join(out_folder, 'tmp.png'),
-    size=(2400, 2400))
+# scene.add(arc_actor)
+# # scene.add(cst_actor)
+# for slicer in slicers:
+#     scene.add(slicer)
+#
+# window.record(
+#     scene=scene,
+#     out_path=op.join(out_folder, 'tmp.png'),
+#     size=(2400, 2400))
 
 
 #############################################################################
@@ -384,7 +383,7 @@ window.record(
     size=(2400, 2400))
 
 # Edit to original tutorial
-window.show(scene, size=(1200, 1200), reset_camera=False)
+# window.show(scene, size=(1200, 1200), reset_camera=False)
 
 scene.camera_info()
 #############################################################################

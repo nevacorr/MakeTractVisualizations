@@ -12,16 +12,16 @@ import AFQ.data.fetch as afd
 from Utility_Functions import load_data, lines_as_tubes, trim_to_central_60
 
 sex = 'M'
-metric = "md"
+metric = "fa"
 
 for sex in ['M', 'F']:
 
     # Load tract statistics data
     z_score_filepath = "/Users/neva/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
     if sex == "M":
-        md_z_score_filename = f"{metric}_100_node_stats_male.csv"
+        z_score_filename = f"{metric}_100split_node_stats_male.csv"
     else:
-        md_z_score_filename = f"{metric}_100_node_stats_female.csv"
+        z_score_filename = f"{metric}_100_node_stats_female.csv"
 
     out_folder = os.getcwd()
 
@@ -51,7 +51,7 @@ for sex in ['M', 'F']:
     for tid in tract_ids:
 
         # Load zscore values
-        zvect, pvect = load_data(z_score_filepath, md_z_score_filename, tid)
+        zvect, pvect = load_data(z_score_filepath, z_score_filename, tid)
 
         # Load tract streamlines
         sft = load_trk(op.join(bundle_path,
@@ -107,21 +107,21 @@ for sex in ['M', 'F']:
         scene.background((1, 1, 1))
 
         if tid.endswith("_L"):
-            scene.set_camera(position=(563.17, 126.78, 74.70),
+            scene.set_camera(position=(430.00, 126.78, 74.70),
                              focal_point=(96.00, 114.00, 96.00),
                              view_up=(0.05, 0.00, 1.00))
         else:
-            scene.set_camera(position=(-367.32, 159.39, 49.73),
+            scene.set_camera(position=(-230.00, 159.39, 49.73),
                              focal_point=(96.00, 114.00, 96.00),
                              view_up=(0.05, 0.00, 1.00))
 
         # window.show(scene, size=(1200, 1200), reset_camera=False)
-        #
+
         # scene.camera_info()
 
         window.record(
             scene=scene,
-            out_path=op.join(out_folder, f'{sex}_{tid}.png'),
+            out_path=op.join(out_folder, f'{metric}_{sex}_{tid}.png'),
             size=(1200, 1200))
 
 

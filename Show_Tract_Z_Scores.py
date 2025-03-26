@@ -11,9 +11,16 @@ import AFQ.data.fetch as afd
 from AFQ.viz.utils import PanelFigure
 from Utility_Functions import load_data, lines_as_tubes, trim_to_central_60
 
+sex = 'F'
+metric = "md"
+
 # Load tract statistics data
 z_score_filepath = "/Users/neva/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
-md_z_score_filename = "md_100_node_stats_female.csv"
+if sex == "M":
+    md_z_score_filename = f"{metric}_100_node_stats_male.csv"
+else:
+    md_z_score_filename = f"{metric}_100_node_stats_female.csv"
+
 out_folder = os.getcwd()
 
 # Get image data from HBN POD2
@@ -97,18 +104,25 @@ for tid in tract_ids:
 
     scene.background((1, 1, 1))
 
-    scene.set_camera(position=(779.99, 132.71, 64.81),
-                     focal_point=(96.00, 114.00, 96.00),
-                     view_up=(0.05, 0.00, 1.00))
-    window.record(
-        scene=scene,
-        out_path=op.join(out_folder, f'{tid}.png'),
-        size=(2400, 2400))
+    if tid.endswith("_L"):
+        scene.set_camera(position=(563.17, 126.78, 74.70),
+                         focal_point=(96.00, 114.00, 96.00),
+                         view_up=(0.05, 0.00, 1.00))
+    else:
+        scene.set_camera(position=(-367.32, 159.39, 49.73),
+                         focal_point=(96.00, 114.00, 96.00),
+                         view_up=(0.05, 0.00, 1.00))
 
     window.show(scene, size=(1200, 1200), reset_camera=False)
 
+    scene.camera_info()
 
+    window.record(
+        scene=scene,
+        out_path=op.join(out_folder, f'{sex}_{tid}.png'),
+        size=(1200, 1200))
 
+    mystop=1
 
 #############################################################################
 # Making a Figure out of many fury panels

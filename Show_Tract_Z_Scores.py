@@ -21,7 +21,7 @@ for sex in ['M', 'F']:
     if sex == "M":
         z_score_filename = f"{metric}_100split_node_stats_male.csv"
     else:
-        z_score_filename = f"{metric}_100_node_stats_female.csv"
+        z_score_filename = f"{metric}_100split_node_stats_female.csv"
 
     out_folder = os.getcwd()
 
@@ -48,7 +48,13 @@ for sex in ['M', 'F']:
     # Loop through tracts and show glass brain for each
     # ----------------------
     tract_ids = ['ARC_L', 'ARC_R', 'ATR_L', 'ATR_R', 'IFO_L', 'IFO_R', 'ILF_L', 'ILF_R', 'SLF_L', 'SLF_R', 'UNC_L', 'UNC_R', 'CST_L', 'CST_R']
+
+    if metric == 'mpf':
+        tract_ids.remove('UNC_L')
+        tract_ids.remove('UNC_R')
+
     for tid in tract_ids:
+        print(tid)
 
         # Load zscore values
         zvect, pvect = load_data(z_score_filepath, z_score_filename, tid)
@@ -88,9 +94,14 @@ for sex in ['M', 'F']:
                                               np.linspace(0, 1, len(pvect)),
                                               pvect)
 
-            # Apply a colormap to non significant values. Make them all blue
-            colors = np.tile([0, 0, 1], (len(interpolated_z_values), 1))
-            # colors = create_colormap(interpolated_z_values, name='Blues')
+            # Apply a colormap to non significant values.
+
+            if sex == 'M':
+                # Make them blue
+                colors = np.tile([0, 0, 1], (len(interpolated_z_values), 1))
+            else:
+                # Make them red
+                colors = np.tile([1, 0, 0], (len(interpolated_z_values), 1))
 
             # Define a solid yellow color
             light_yellow = np.array([1, 1, 0.5])

@@ -3,7 +3,7 @@ import matplotlib.image as mpimg
 import os.path as op
 import os
 
-metric='md'
+metric='mpf'
 
 # Define crop margins (top, bottom, left, right)
 crop_top = 200
@@ -15,8 +15,11 @@ working_dir = os.getcwd()
 
 tract_ids = ['ARC', 'ATR', 'IFO', 'ILF', 'SLF', 'UNC', 'CST']
 
-for tid in tract_ids:
+if metric == 'mpf':
+    tract_ids.remove('UNC')
 
+for tid in tract_ids:
+    print(f'{tid}')
     image_files = [f'{metric}_F_{tid}_L.png', f'{metric}_F_{tid}_R.png', f'{metric}_M_{tid}_L.png', f'{metric}_M_{tid}_R.png']
 
     # Create figure
@@ -36,6 +39,10 @@ for tid in tract_ids:
     # Add text to the figure
     fig.text(0.5, 0.95, f"Female {metric.upper()} {tid}", fontsize=20, ha='center', va='center', color='black')
     fig.text(0.5, 0.45, f"Male {metric.upper()} {tid}", fontsize=20, ha='center', va='center', color='black')
+    fig.text(0.05, 0.90, "L", fontsize=15, ha='center', va='center', color='black')
+    fig.text(0.95, 0.90, "R", fontsize=15, ha='center', va='center', color='black')
+    fig.text(0.05, 0.40, "L", fontsize=15, ha='center', va='center', color='black')
+    fig.text(0.95, 0.40, "R", fontsize=15, ha='center', va='center', color='black')
 
     plt.tight_layout()
     plt.savefig(op.join(working_dir, f'figure_{metric}_{tid}.png'))

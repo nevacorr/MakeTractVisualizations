@@ -7,7 +7,7 @@ metric='md'
 
 # Define crop margins (top, bottom, left, right)
 crop_top = 200
-crop_bottom = 200
+crop_bottom = 300
 crop_left = 200
 crop_right = 200
 
@@ -22,6 +22,7 @@ tract_to_profile = dict(zip(tract_ids, profiles_regions))
 
 if metric == 'mpf':
     tract_ids.remove('UNC')
+    del tract_to_profile['UNC']
 
 for tid in tract_ids:
     print(f'{tid}')
@@ -31,7 +32,7 @@ for tid in tract_ids:
                    f'{profdir}/tracts_{metric}_splits_100Right.{p}.png']
 
     # Create figure
-    fig, axes = plt.subplots(3, 2, figsize=(8, 12))
+    fig, axes = plt.subplots(3, 2, figsize=(6, 9))
 
     # Flatten axes to a 1D list
     axes = axes.ravel()

@@ -15,7 +15,7 @@ working_dir = os.getcwd()
 profdir = os.path.join(working_dir, 'R_tract_profiles')
 
 tract_ids = ['ARC', 'ATR', 'IFO', 'ILF', 'SLF', 'UNC', 'CST']
-profiles_regions = ['Arcuate', 'Thalamic.Radiation', 'IFOF', 'SLF', 'Uncinate', 'Corticospinal']
+profiles_regions = ['Arcuate', 'Thalamic.Radiation', 'IFOF', 'ILF', 'SLF', 'Uncinate', 'Corticospinal']
 
 # Create a mapping from tract_ids to profile_regions
 tract_to_profile = dict(zip(tract_ids, profiles_regions))

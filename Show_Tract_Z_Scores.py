@@ -9,10 +9,11 @@ from fury import actor, window
 from fury.colormap import create_colormap
 import AFQ.data.fetch as afd
 
-from Utility_Functions import load_data, lines_as_tubes, trim_to_central_60
+from Utility_Functions import load_data, lines_as_tubes, trim_to_central_60, check_orientation
 
 sex = 'M'
 metric = "fa"
+check_orientation = 1
 
 for sex in ['M', 'F']:
 
@@ -112,6 +113,9 @@ for sex in ['M', 'F']:
             # Override colors for significant values
             colors[significant_mask] = light_yellow
 
+            if check_orientation == 1:
+                colors = check_orientation(interpolated_z_values)
+
             line_actor = lines_as_tubes([sl], 2, colors=colors)
             scene.add(line_actor)
 
@@ -126,14 +130,14 @@ for sex in ['M', 'F']:
                              focal_point=(96.00, 114.00, 96.00),
                              view_up=(0.05, 0.00, 1.00))
 
-        # window.show(scene, size=(1200, 1200), reset_camera=False)
+        window.show(scene, size=(1200, 1200), reset_camera=False)
 
-        # scene.camera_info()
+        scene.camera_info()
 
-        window.record(
-            scene=scene,
-            out_path=op.join(out_folder, f'{metric}_{sex}_{tid}.png'),
-            size=(1200, 1200))
+        # window.record(
+        #     scene=scene,
+        #     out_path=op.join(out_folder, f'{metric}_{sex}_{tid}.png'),
+        #     size=(1200, 1200))
 
 
 

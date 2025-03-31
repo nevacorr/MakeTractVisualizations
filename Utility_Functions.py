@@ -33,3 +33,22 @@ def trim_to_central_60(streamlines):
         trimmed_streamline = streamline[start_index:end_index]
         trimmed_streamlines.append(trimmed_streamline)
     return trimmed_streamlines
+
+
+def check_orientation(interpolated_z_values):
+    def position_to_color(index, num_values):
+        """Map position to a blue-white-red RGB color."""
+        if index < num_values // 3:
+            return [0, 0, 1]  # Blue for the first third
+        elif index < 2 * num_values // 3:
+            return [1, 1, 1]  # White for the middle third
+        else:
+            return [1, 0, 0]  # Red for the last third
+
+    # Get the number of elements in interpolated_z_values
+    num_values = len(interpolated_z_values)
+
+    # Generate colors based on position
+    colors = np.array([position_to_color(i, num_values) for i in range(num_values)])
+
+    return colors

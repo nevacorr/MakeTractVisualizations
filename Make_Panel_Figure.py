@@ -3,7 +3,7 @@ import matplotlib.image as mpimg
 import os.path as op
 import os
 
-metric='md'
+metric='mpf'
 
 # Define crop margins (top, bottom, left, right)
 crop_top = 200
@@ -58,7 +58,7 @@ for tid in tract_ids:
     fig.text(0.95, 0.65, "R", fontsize=15, ha='center', va='center', color='black')
 
     plt.tight_layout()
-    plt.savefig(op.join(working_dir, f'figure_{metric}_{tid}.png'))
+    plt.savefig(op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png'))
     plt.show()
 
 

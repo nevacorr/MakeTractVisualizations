@@ -136,7 +136,7 @@ for sex in ['M', 'F']:
 
         # window.record(
         #     scene=scene,
-        #     out_path=op.join(out_folder, f'{metric}_{sex}_{tid}.png'),
+        #     out_path=op.join(out_folder, 'individual_modality_figs', f'{metric}_{sex}_{tid}.png'),
         #     size=(1200, 1200))
 
 

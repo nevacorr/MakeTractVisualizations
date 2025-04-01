@@ -5,13 +5,15 @@ import nibabel as nib
 import numpy as np
 
 
-
 mat_dir = '/Users/neva/AFQ_data'
-mat_file = 'fiberfiles_genz323.mat'
+mat_file = 'fiberfiles_genz323.mat' # This was a file that I manually exported from matlab after loading the
+                                    # .mat file given to me for this subject. The original .mat file contained
+                                    # other variables and was in a more complex format.
+
 
 mat_data = scipy.io.loadmat(path.join(mat_dir, mat_file))
 
-fg=mat_data['fg']
+fg = mat_data['fg']
 
 # Print the type and contents of 'fg'
 print(type(fg))
@@ -47,7 +49,6 @@ for i in range(fibers.shape[1]):  # Loop over the 20 regions
 
         # Append the processed fiber points to fiber_data
         fiber_data.append(fiber_points)
-
 
     streamline_sequence = nib.streamlines.ArraySequence(fiber_data)
 

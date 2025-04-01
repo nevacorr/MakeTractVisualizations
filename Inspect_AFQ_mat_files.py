@@ -51,10 +51,12 @@ for i in range(fibers.shape[1]):  # Loop over the 20 regions
 
     streamline_sequence = nib.streamlines.ArraySequence(fiber_data)
 
-    row_name = str(names[i][0])  # Extract name safely
-    row_name = row_name.replace(' ', '_')[:100]  # Clean and shorten filename
-
+    # Clean up the filename
+    row_name = str(names[0][i]).replace('[', '').replace(']', '').replace(' ', '_')[:100]
     trk_filename = f"{row_name}.trk"
+
+    # Remove any additional quotes if they're present
+    trk_filename = trk_filename.replace("'", "")
 
     # Create Tractogram object
     tractogram = nib.streamlines.Tractogram(streamline_sequence, affine_to_rasmm=identity_affine)

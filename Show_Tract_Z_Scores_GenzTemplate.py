@@ -82,7 +82,7 @@ for sex in ['M', 'F']:
         print(tid)
 
         # Load zscore values
-        zvect, pvect = load_data(z_score_filepath, z_score_filename, 'ARC_L')
+        # zvect, pvect = load_data(z_score_filepath, z_score_filename, 'ARC_L')
 
         trk_path = op.join(bundle_path, f'{tid}.trk')
         if not op.exists(trk_path):

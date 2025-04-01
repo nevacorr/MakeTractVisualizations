@@ -1,6 +1,10 @@
 import h5py
 import os.path as path
 import scipy.io
+import nibabel as nib
+import numpy as np
+
+
 
 mat_dir = '/Users/neva/AFQ_data'
 mat_file = 'fiberfiles_genz323.mat'
@@ -17,33 +21,45 @@ if fg.dtype.names:
 
 fibers= fg['fibers']
 
+names = fg['name'] # tract region name
 
-# Inspect the first few elements of fibers
-for i in range(fibers.shape[1]):
-    print(f"Fiber {i+1}:")
-    print(fibers[0, i])  # Access the element in the 1st row and ith column
-    print(f"Shape: {fibers[0, i].shape}")
+# Create an identity matrix affine (no transformation)
+# Would be better to include a real affine
+identity_affine = np.eye(4)
 
-# Access a specific fiber (e.g., the first fiber)
-fiber_1 = fibers[0, 0]  # First element (fiber)
-print(f"Fiber 1 shape: {fiber_1.shape}")
-print(fiber_1)  # Print the fiber data
+for i in range(fibers.shape[1]):  # Loop over the 20 regions
+    current_fibers = fibers[0, i]  # Extract the current region's fibers
 
-# If the fiber is a list or array of arrays, you can access the individual arrays inside it
-for idx, array in enumerate(fiber_1):
-    print(f"Array {idx+1} in Fiber 1: {array}")
-    print(f"Shape: {array.shape}")
+    fiber_data = []
+    for j in range(current_fibers.shape[0]):  # Loop over each fiber (streamline)
+        fiber = current_fibers[j]  # Extract the current fiber
 
-# Loop through each fiber to inspect the arrays inside it
-for i, fiber in enumerate(fibers[0]):
-    print(f"Fiber {i+1}:")
-    for j, subarray in enumerate(fiber):
-        print(f"  Subarray {j+1}: Shape {subarray.shape}")
-        print(subarray)  # or use subarray[:5] to print only the first few elements
+        # Check if fiber has the expected shape (1, N, 3), so access fiber[0] to get the actual data
+        fiber_array = fiber[0]  # fiber[0] should now be the (N, 3) array with coordinates
 
+        # Now extract x, y, z coordinates
+        x = fiber_array[0, :]  # x coordinates
+        y = fiber_array[1, :]  # y coordinates
+        z = fiber_array[2, :]  # z coordinates
 
+        # Combine x, y, and z arrays element-wise into a single (N, 3) array
+        fiber_points = np.vstack([x, y, z]).T  # Stack vertically and transpose to get (N, 3)
 
-
+        # Append the processed fiber points to fiber_data
+        fiber_data.append(fiber_points)
 
 
-mystop=1
+    streamline_sequence = nib.streamlines.ArraySequence(fiber_data)
+
+    row_name = str(names[i][0])  # Extract name safely
+    row_name = row_name.replace(' ', '_')[:100]  # Clean and shorten filename
+
+    trk_filename = f"{row_name}.trk"
+
+    # Create Tractogram object
+    tractogram = nib.streamlines.Tractogram(streamline_sequence, affine_to_rasmm=identity_affine)
+
+    # Save to .trk file
+    nib.streamlines.save(tractogram, trk_filename)
+    print(f"Saved fibers for {row_name} to {trk_filename}")
+    mystop=1

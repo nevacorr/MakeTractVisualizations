@@ -5,10 +5,10 @@ import nibabel as nib
 import numpy as np
 
 
-mat_dir = '/Users/neva/AFQ_data'
+mat_dir = '/Users/neva/PycharmProjects/VisualizeTracts/genz323/dti64trilin'
 mat_file = 'fiberfiles_genz323.mat' # This was a file that I manually exported from matlab after loading the
-                                    # .mat file given to me for this subject. The original .mat file contained
-                                    # other variables and was in a more complex format.
+                                    # AFQ output .mat file given to me for this subject MoriGroups_Cortex_clean_D5_L4.mat).
+                                    # The original .mat file contained other variables and was in HDF5 format
 
 
 mat_data = scipy.io.loadmat(path.join(mat_dir, mat_file))
@@ -21,7 +21,7 @@ print(type(fg))
 if fg.dtype.names:
     print(fg.dtype.names)
 
-fibers= fg['fibers']
+fibers = fg['fibers']
 
 names = fg['name'] # tract region name
 

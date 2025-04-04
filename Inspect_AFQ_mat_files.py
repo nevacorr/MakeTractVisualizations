@@ -1,18 +1,21 @@
-import os.path as path
+import os.path as op
 import scipy.io
 import nibabel as nib
 import numpy as np
+import os
+import os.path as op
 
-
-mat_dir = '/Users/neva/PycharmProjects/VisualizeTracts/genz323/dti64trilin'
+working_dir = os.getcwd()
+home_dir = os.path.expanduser("~")
+mat_dir = op.join(f'{working_dir}/genz323/dti64trilin')
 mat_file = 'fiberfiles_genz323.mat' # This was a file that I manually exported from matlab after loading the
                                     # AFQ output .mat file given to me for this subject MoriGroups_Cortex_clean_D5_L4.mat).
                                     # The original .mat file contained other variables and was in HDF5 format
 dti_img_file = 'bin/mpfcoreg12.nii.gz'
 
 # Load data
-mat_data = scipy.io.loadmat(path.join(mat_dir, mat_file))
-dti_space_img = nib.load(path.join(mat_dir, dti_img_file))
+mat_data = scipy.io.loadmat(op.join(mat_dir, mat_file))
+dti_space_img = nib.load(op.join(mat_dir, dti_img_file))
 
 # Extract image properties
 affine = dti_space_img.affine  # Get the affine transformation
@@ -56,6 +59,6 @@ for i in range(fibers.shape[1]):  # Loop over the 20 regions
     tractogram = nib.streamlines.Tractogram(streamline_sequence, affine_to_rasmm=affine)
 
     # Save to .trk file
-    nib.streamlines.save(tractogram, path.join('new_trk_files', trk_filename))
+    nib.streamlines.save(tractogram, op.join('new_trk_files', trk_filename))
     print(f"Saved fibers for {row_name} to {trk_filename}")
     mystop=1

@@ -14,11 +14,12 @@ sex = 'M'
 metric = "fa"
 check_orientation = 0
 working_dir = os.getcwd()
+home_dir = os.path.expanduser("~")
 
 for sex in ['M', 'F']:
 
     # Load tract statistics data
-    z_score_filepath = "/Users/neva/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
+    z_score_filepath =f"{home_dir}/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
     if sex == "M":
         z_score_filename = f"{metric}_100split_node_stats_male.csv"
     else:

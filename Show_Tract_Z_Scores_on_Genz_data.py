@@ -29,9 +29,9 @@ for sex in ['M', 'F']:
 
     # Get image data f
     # ----------------------------
-    img_data_path = op.join(working_dir, 'genz323/dti64trilin/bin')
+    img_data_path = op.join(working_dir, 'genz414/dti64trilin/bin')
     bundle_path = op.join(working_dir, 'new_trk_files')
-    dt6_path = op.join(working_dir, 'genz323/dti64trilin')
+    dt6_path = op.join(working_dir, 'genz414/dti64trilin')
 
     # Read brain anatomy imaging data into memory
     # ----------------------

@@ -29,15 +29,15 @@ for sex in ['M', 'F']:
 
     # Get image data f
     # ----------------------------
-    img_data_path = op.join(working_dir, 'genz414/dti64trilin/bin')
+    img_data_path = op.join(working_dir, 'genz323/dti64trilin/bin')
     bundle_path = op.join(working_dir, 'new_trk_files')
-    dt6_path = op.join(working_dir, 'genz414/dti64trilin')
+    dt6_path = op.join(working_dir, 'genz323/dti64trilin')
 
     # Read brain anatomy imaging data into memory
     # ----------------------
     fa_img = nib.load(op.join(img_data_path, 'mpfcoreg12.nii.gz'))
     fa = fa_img.get_fdata()
-    brain_mask_img = nib.load(op.join(img_data_path, 'brainMask.nii.gz'))
+    brain_mask_img = nib.load(op.join(img_data_path, 'highres2padded_lowres.nii.gz'))
     brain_mask_data = brain_mask_img.get_fdata()
 
     # Get affine data

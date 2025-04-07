@@ -12,7 +12,7 @@ from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60,
 
 sex = 'M'
 metric = "md"
-check_orientation = 0
+check_orientation_flag = 1
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
 img_dir = 'individual_modality_figs' # directory to place output images into
@@ -120,7 +120,7 @@ for sex in ['M', 'F']:
             # Override colors for significant values
             colors[significant_mask] = light_yellow
 
-            if check_orientation == 1:
+            if check_orientation_flag == 1:
                 colors = check_orientation(interpolated_z_values)
 
             # Create streamline actor and add it to the list
@@ -142,16 +142,16 @@ for sex in ['M', 'F']:
                              focal_point=(2.00, -2.00, 8.00),
                              view_up=(0.09, -0.05, 0.99))
 
-        # window.show(scene, size=(1200, 1200), reset_camera=False)
+        window.show(scene, size=(1200, 1200), reset_camera=False)
 
         scene.camera_info()
 
         os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
-        window.record(
-            scene=scene,
-            out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
-            size=(1200, 1200))
+        # window.record(
+        #     scene=scene,
+        #     out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
+        #     size=(1200, 1200))
 
 
 

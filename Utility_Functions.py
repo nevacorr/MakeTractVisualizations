@@ -3,15 +3,10 @@ import pandas as pd
 import numpy as np
 from fury import actor
 
-def load_data(filepath, filename, tract):
+def load_z_p_data(filepath, filename, tract):
     df = pd.read_csv(f"{filepath}{filename}")
 
-    tract_mapping = {'Left.Arcuate': 'ARC_L', 'Right.Arcuate':'ARC_R', 'Left.Thalamic.Radiation':'ATR_L',
-                       'Right.Thalamic.Radiation':'ATR_R', 'Left.IFOF':'IFO_L', 'Right.IFOF':'IFO_R', 'Left.ILF':'ILF_L',
-                       'Right.ILF':'ILF_R', 'Left.SLF':'SLF_L', 'Right.SLF':'SLF_R', 'Left.Uncinate':'UNC_L',
-                       'Right.Uncinate':'UNC_R', 'Left.Corticospinal':'CST_L', 'Right.Corticospinal':'CST_R'}
-
-    df['Tract'] = df['Tract'].replace(tract_mapping)
+    df['Tract'] = df['Tract'].str.replace('.', '_', regex=False)
 
     z = df.loc[df["Tract"] == tract, "Z_mean"].values
     adjp = df.loc[df["Tract"] == tract, "adjusted_p_value"].values

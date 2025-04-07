@@ -27,10 +27,10 @@ def trim_to_central_60(streamlines):
     trimmed_streamlines = []
     for streamline in streamlines:
         # Calculate the number of points to keep (60% of the streamline)
-        num_points = len(streamline)
+        num_points = streamline.shape[0]
         start_index = int(num_points * 0.2)  # 20% from the start
         end_index = int(num_points * 0.8)    # 20% from the end
-        trimmed_streamline = streamline[start_index:end_index]
+        trimmed_streamline = streamline[start_index:end_index, :]
         trimmed_streamlines.append(trimmed_streamline)
     return trimmed_streamlines
 

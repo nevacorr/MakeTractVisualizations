@@ -37,7 +37,7 @@ for sex in ['M', 'F']:
     # ----------------------
     fa_img = nib.load(op.join(img_data_path, 'mpfcoreg12.nii.gz'))
     fa = fa_img.get_fdata()
-    brain_mask_img = nib.load(op.join(img_data_path, 'highres2padded_lowres.nii.gz'))
+    brain_mask_img = nib.load(op.join(img_data_path, 'highres2padded_lowres_mask.nii.gz'))
     brain_mask_data = brain_mask_img.get_fdata()
 
     # Get affine data
@@ -72,14 +72,16 @@ for sex in ['M', 'F']:
         # Transform streamlines to brain mask space
         aligned_streamlines = [apply_affine(inv_affine, s) for s in streamlines]
 
+        # Trim streamlines to the central 60%
+        aligned_streamlines = trim_to_central_60(aligned_streamlines)
+
         streamline_points = np.vstack(aligned_streamlines)  # Flatten all points into one array
 
         # Making a `scene`
         scene = window.Scene()
         scene.background((1, 1, 1))
 
-        # Trim streamlines to the central 60%
-        # tract_trimmed = trim_to_central_60(tract_t1w)
+
 
         # Clear the scene
         # scene.clear()

@@ -53,8 +53,8 @@ for tid in tract_ids:
         ax.axis("off")
 
     # Add text to the figure
-    fig.text(0.5, 0.98, f"Female {metric.upper()} {tid}", fontsize=20, ha='center', va='center', color='black')
-    fig.text(0.5, 0.65, f"Male {metric.upper()} {tid}", fontsize=20, ha='center', va='center', color='black')
+    fig.text(0.5, 0.98, f"Female {metric.upper()} {tid}", fontsize=18, ha='center', va='center', color='black')
+    fig.text(0.5, 0.65, f"Male {metric.upper()} {tid}", fontsize=18, ha='center', va='center', color='black')
     fig.text(0.05, 0.98, "L", fontsize=15, ha='center', va='center', color='black')
     fig.text(0.95, 0.98, "R", fontsize=15, ha='center', va='center', color='black')
     fig.text(0.05, 0.65, "L", fontsize=15, ha='center', va='center', color='black')

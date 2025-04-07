@@ -8,10 +8,10 @@ from dipy.io.streamline import load_trk
 from dipy.tracking.streamline import transform_streamlines
 from fury import actor, window
 from fury.colormap import create_colormap
-from Utility_Functions import load_data, lines_as_tubes, trim_to_central_60, check_orientation
+from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60, check_orientation
 
 sex = 'M'
-metric = "fa"
+metric = "md"
 check_orientation = 0
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
@@ -62,7 +62,7 @@ for sex in ['M', 'F']:
         print(tid)
 
         # Load zscore values
-        zvect, pvect = load_data(z_score_filepath, z_score_filename, tid)
+        zvect, pvect = load_z_p_data(z_score_filepath, z_score_filename, tid)
 
         # Load tract streamlines
         trk_path = op.join(bundle_path, f'{tid}.trk')
@@ -81,49 +81,54 @@ for sex in ['M', 'F']:
         scene = window.Scene()
         scene.background((1, 1, 1))
 
-
-
-        # Clear the scene
-        # scene.clear()
+        print(type(actor))
 
         # Display glass brain
         brain_actor = actor.contour_from_roi(brain_mask_data, affine=brain_affine, color=[0, 0, 0], opacity=0.05)
         scene.add(brain_actor)
 
-        # for sl in aligned_streamlines:
-        #     # interpolate the 60 tract profiles values to match the number of points
-        #     # in the streamline:
-        #     interpolated_z_values = np.interp(np.linspace(0, 1, len(sl)),
-        #                                     np.linspace(0, 1, len(zvect)),
-        #                                     zvect)
-        #
-        #     interpolated_p_values = np.interp(np.linspace(0, 1, len(sl)),
-        #                                       np.linspace(0, 1, len(pvect)),
-        #                                       pvect)
-        #
-        #     # Apply a colormap to non significant values.
-        #
-        #     if sex == 'M':
-        #         # Make them blue
-        #         colors = np.tile([0, 0, 1], (len(interpolated_z_values), 1))
-        #     else:
-        #         # Make them red
-        #         colors = np.tile([1, 0, 0], (len(interpolated_z_values), 1))
-        #
-        #     # Define a solid yellow color
-        #     light_yellow = np.array([1, 1, 0.5])
-        #
-        #     # Find indices where the interpolated p_values <0.05
-        #     significant_mask = interpolated_p_values < 0.05
-        #
-        #     # Override colors for significant values
-        #     colors[significant_mask] = light_yellow
-        #
-        #     if check_orientation == 1:
-        #         colors = check_orientation(interpolated_z_values)
+        # Create an empty list for streamline actors
+        streamline_actors = []
 
-        streamline_actor = actor.line(aligned_streamlines, colors=(1, 0, 0))  # Red for streamlines
-        scene.add(streamline_actor)
+        for sl in aligned_streamlines:
+            # interpolate the 60 tract profiles values to match the number of points
+            # in the streamline:
+            interpolated_z_values = np.interp(np.linspace(0, 1, sl.shape[0]),
+                                            np.linspace(0, 1, len(zvect)),
+                                            zvect)
+
+            interpolated_p_values = np.interp(np.linspace(0, 1, len(sl)),
+                                              np.linspace(0, 1, len(pvect)),
+                                              pvect)
+
+            # Apply a colormap to non significant values.
+
+            if sex == 'M':
+                # Make them blue
+                colors = np.tile([0, 0, 1], (len(interpolated_z_values), 1))
+            else:
+                # Make them red
+                colors = np.tile([1, 0, 0], (len(interpolated_z_values), 1))
+
+            # Define a solid yellow color
+            light_yellow = np.array([1, 1, 0.5])
+
+            # Find indices where the interpolated p_values <0.05
+            significant_mask = interpolated_p_values < 0.05
+
+            # Override colors for significant values
+            colors[significant_mask] = light_yellow
+
+            if check_orientation == 1:
+                colors = check_orientation(interpolated_z_values)
+
+            # Create streamline actor and add it to the list
+            streamline_actor = actor.line([sl], colors=colors)
+            streamline_actors.append(streamline_actor)
+
+        # Add all streamline actors to the scene
+        for sactor in streamline_actors:
+            scene.add(sactor)
 
         scene.background((1, 1, 1))
 

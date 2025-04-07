@@ -15,6 +15,7 @@ metric = "md"
 check_orientation = 0
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
+img_dir = 'individual_modality_figs' # directory to place output images into
 
 for sex in ['M', 'F']:
 
@@ -141,14 +142,16 @@ for sex in ['M', 'F']:
                              focal_point=(2.00, -2.00, 8.00),
                              view_up=(0.09, -0.05, 0.99))
 
-        window.show(scene, size=(1200, 1200), reset_camera=False)
+        # window.show(scene, size=(1200, 1200), reset_camera=False)
 
         scene.camera_info()
 
-        # window.record(
-        #     scene=scene,
-        #     out_path=op.join(out_folder, 'individual_modality_figs', f'{metric}_{sex}_{tid}.png'),
-        #     size=(1200, 1200))
+        os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
+
+        window.record(
+            scene=scene,
+            out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
+            size=(1200, 1200))
 
 
 

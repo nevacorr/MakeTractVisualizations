@@ -11,7 +11,7 @@ from fury.colormap import create_colormap
 from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60, check_orientation
 
 sex = 'M'
-metric = "md"
+metric = "fa"
 check_orientation_flag = 0
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
@@ -30,9 +30,9 @@ for sex in ['M', 'F']:
 
     # Get image data f
     # ----------------------------
-    img_data_path = op.join(working_dir, 'genz310/dti64trilin/bin')
+    img_data_path = op.join(working_dir, 'genz423/dti64trilin/bin')
     bundle_path = op.join(working_dir, 'new_trk_files')
-    dt6_path = op.join(working_dir, 'genz310/dti64trilin')
+    dt6_path = op.join(working_dir, 'genz423/dti64trilin')
 
     # Read brain anatomy imaging data into memory
     # ----------------------
@@ -82,8 +82,6 @@ for sex in ['M', 'F']:
         # Making a `scene`
         scene = window.Scene()
         scene.background((1, 1, 1))
-
-        print(type(actor))
 
         # Display glass brain
         brain_actor = actor.contour_from_roi(brain_mask_data, affine=brain_affine, color=[0, 0, 0], opacity=0.05)
@@ -146,13 +144,13 @@ for sex in ['M', 'F']:
 
             # window.show(scene, size=(1200, 1200), reset_camera=False)
 
-            scene.camera_info()
+            # scene.camera_info()
 
             os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
             window.record(
                 scene=scene,
-                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_L_{tid}.png'),
+                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_Left_{tid}.png'),
                 size=(1200, 1200))
 
             scene.set_camera(position=(-40.22, -88.87, 515.90),
@@ -165,7 +163,7 @@ for sex in ['M', 'F']:
 
             window.record(
                 scene=scene,
-                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_R_{tid}.png'),
+                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_Right_{tid}.png'),
                 size=(1200, 1200))
 
         else:
@@ -183,7 +181,4 @@ for sex in ['M', 'F']:
                 scene=scene,
                 out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
                 size=(1200, 1200))
-
-
-
 

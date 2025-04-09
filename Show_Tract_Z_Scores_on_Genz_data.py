@@ -30,9 +30,9 @@ for sex in ['M', 'F']:
 
     # Get image data f
     # ----------------------------
-    img_data_path = op.join(working_dir, 'genz103/dti64trilin/bin')
+    img_data_path = op.join(working_dir, 'genz310/dti64trilin/bin')
     bundle_path = op.join(working_dir, 'new_trk_files')
-    dt6_path = op.join(working_dir, 'genz103/dti64trilin')
+    dt6_path = op.join(working_dir, 'genz310/dti64trilin')
 
     # Read brain anatomy imaging data into memory
     # ----------------------
@@ -138,25 +138,51 @@ for sex in ['M', 'F']:
             scene.set_camera(position=(-511.45, -62.25, 13.31),
                              focal_point=(2.00, -2.00, 8.00),
                              view_up=(0.02, -0.11, 0.99))
+
         elif "Callosum" in tid:
-            scene.set_camera(position=(438.31, 150.78, 239.48),
+            scene.set_camera(position=(-2.01, -106.36, 514.35),
                              focal_point=(2.00, -2.00, 8.00),
-                             view_up=(-0.35, -0.32, 0.88))
+                             view_up=(0.99, 0.10, 0.03))
+
+            # window.show(scene, size=(1200, 1200), reset_camera=False)
+
+            scene.camera_info()
+
+            os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
+
+            window.record(
+                scene=scene,
+                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_L_{tid}.png'),
+                size=(1200, 1200))
+
+            scene.set_camera(position=(-40.22, -88.87, 515.90),
+                             focal_point=(2.00, -2.00, 8.00),
+                             view_up=(-0.99, -0.12, -0.10))
+
+            # window.show(scene, size=(1200, 1200), reset_camera=False)
+
+            os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
+
+            window.record(
+                scene=scene,
+                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_R_{tid}.png'),
+                size=(1200, 1200))
+
         else:
             scene.set_camera(position=(516.43, -16.32, -41.44),
                              focal_point=(2.00, -2.00, 8.00),
                              view_up=(0.09, -0.05, 0.99))
 
-        # window.show(scene, size=(1200, 1200), reset_camera=False)
+        if "Callosum" not in tid:
 
-        scene.camera_info()
+            # window.show(scene, size=(1200, 1200), reset_camera=False)
 
-        os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
+            os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
-        window.record(
-            scene=scene,
-            out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
-            size=(1200, 1200))
+            window.record(
+                scene=scene,
+                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
+                size=(1200, 1200))
 
 
 

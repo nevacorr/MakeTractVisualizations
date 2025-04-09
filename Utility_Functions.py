@@ -80,4 +80,4 @@ def make_legend():
     # Show the figure
     plt.show()
 
-make_legend()
+    return fig, ax

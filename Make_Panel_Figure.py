@@ -3,7 +3,7 @@ import matplotlib.image as mpimg
 import os.path as op
 import os
 
-metric='md'
+metric='fa'
 
 # Define crop margins (top, bottom, left, right)
 crop_top = 200
@@ -15,9 +15,11 @@ working_dir = os.getcwd()
 profdir = os.path.join(working_dir, 'tract_profiles_from_R')
 streamline_dir = os.path.join(working_dir, 'individual_modality_figs')
 
-tract_ids = ['Arcuate', 'Thalamic_Radiation', 'IFOF', 'ILF', 'SLF', 'Uncinate', 'Corticospinal']
+tract_ids = ['Arcuate', 'Thalamic_Radiation', 'IFOF', 'ILF', 'SLF', 'Uncinate', 'Corticospinal',
+             'Callosum_Forceps_Major', 'Callosum_Forceps_Minor']
 # tract_ids = ['ARC', 'ATR', 'IFO', 'ILF', 'SLF', 'UNC', 'CST']
-profiles_regions = ['Arcuate', 'Thalamic.Radiation', 'IFOF', 'ILF', 'SLF', 'Uncinate', 'Corticospinal']
+profiles_regions = ['Arcuate', 'Thalamic Radiation', 'IFOF', 'ILF', 'SLF', 'Uncinate', 'Corticospinal',
+                    'Callosum Forceps Major','Callosum Forceps Minor']
 
 # Create a mapping from tract_ids to profile_regions
 tract_to_profile = dict(zip(tract_ids, profiles_regions))
@@ -29,10 +31,19 @@ if metric == 'mpf':
 for tid in tract_ids:
     print(f'{tid}')
     p = tract_to_profile[tid]
-    image_files = [f'{streamline_dir}/{metric}_F_Left_{tid}.png', f'{streamline_dir}/{metric}_F_Right_{tid}.png',
+
+    # Check if 'Callosum' is in the tract id
+    if "Callosum" in tid:
+        # Modify the image_files if tid contains "Callosum"
+        image_files = [f'{streamline_dir}/{metric}_F_{tid}.png', f'{streamline_dir}/{metric}_F_{tid}.png',
+                       f'{streamline_dir}/{metric}_M_{tid}.png', f'{streamline_dir}/{metric}_M_{tid}.png',
+                       f'{profdir}/tracts_{metric}_splits_100{p}_new_format.png', f'{profdir}/tracts_{metric}_splits_100{p}_new_format.png']
+
+    else:
+        image_files = [f'{streamline_dir}/{metric}_F_Left_{tid}.png', f'{streamline_dir}/{metric}_F_Right_{tid}.png',
                    f'{streamline_dir}/{metric}_M_Left_{tid}.png',
-                   f'{streamline_dir}/{metric}_M_Right_{tid}.png', f'{profdir}/tracts_{metric}_splits_100Left.{p}.png',
-                   f'{profdir}/tracts_{metric}_splits_100Right.{p}.png']
+                   f'{streamline_dir}/{metric}_M_Right_{tid}.png', f'{profdir}/tracts_{metric}_splits_100Left {p}_new_format.png',
+                   f'{profdir}/tracts_{metric}_splits_100Right {p}_new_format.png']
 
     # Create figure
     fig, axes = plt.subplots(3, 2, figsize=(6, 9))

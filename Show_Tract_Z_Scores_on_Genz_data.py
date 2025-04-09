@@ -38,7 +38,8 @@ for sex in ['M', 'F']:
     # ----------------------
     fa_img = nib.load(op.join(img_data_path, 'mpfcoreg12.nii.gz'))
     fa = fa_img.get_fdata()
-    brain_mask_img = nib.load(op.join(img_data_path, 'highres2lowres.nii.gz'))
+    brain_mask_img = nib.load(op.join(img_data_path, 'brainMask.nii.gz'))
+    # brain_mask_img = nib.load(op.join(img_data_path, 'highres2lowres.nii.gz'))
     brain_mask_data = brain_mask_img.get_fdata()
 
 # Get affine data
@@ -137,21 +138,25 @@ for sex in ['M', 'F']:
             scene.set_camera(position=(-511.45, -62.25, 13.31),
                              focal_point=(2.00, -2.00, 8.00),
                              view_up=(0.02, -0.11, 0.99))
+        elif "Callosum" in tid:
+            scene.set_camera(position=(438.31, 150.78, 239.48),
+                             focal_point=(2.00, -2.00, 8.00),
+                             view_up=(-0.35, -0.32, 0.88))
         else:
             scene.set_camera(position=(516.43, -16.32, -41.44),
                              focal_point=(2.00, -2.00, 8.00),
                              view_up=(0.09, -0.05, 0.99))
 
-        window.show(scene, size=(1200, 1200), reset_camera=False)
+        # window.show(scene, size=(1200, 1200), reset_camera=False)
 
         scene.camera_info()
 
         os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
-        # window.record(
-        #     scene=scene,
-        #     out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
-        #     size=(1200, 1200))
+        window.record(
+            scene=scene,
+            out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
+            size=(1200, 1200))
 
 
 

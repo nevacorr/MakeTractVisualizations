@@ -12,7 +12,7 @@ from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60,
 
 sex = 'M'
 metric = "md"
-check_orientation_flag = 1
+check_orientation_flag = 0
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
 img_dir = 'individual_modality_figs' # directory to place output images into
@@ -30,18 +30,18 @@ for sex in ['M', 'F']:
 
     # Get image data f
     # ----------------------------
-    img_data_path = op.join(working_dir, 'genz323/dti64trilin/bin')
+    img_data_path = op.join(working_dir, 'genz103/dti64trilin/bin')
     bundle_path = op.join(working_dir, 'new_trk_files')
-    dt6_path = op.join(working_dir, 'genz323/dti64trilin')
+    dt6_path = op.join(working_dir, 'genz103/dti64trilin')
 
     # Read brain anatomy imaging data into memory
     # ----------------------
     fa_img = nib.load(op.join(img_data_path, 'mpfcoreg12.nii.gz'))
     fa = fa_img.get_fdata()
-    brain_mask_img = nib.load(op.join(img_data_path, 'highres2padded_lowres_mask.nii.gz'))
+    brain_mask_img = nib.load(op.join(img_data_path, 'brainMask.nii.gz'))
     brain_mask_data = brain_mask_img.get_fdata()
 
-    # Get affine data
+# Get affine data
     brain_affine = brain_mask_img.affine
     brain_shape = brain_mask_img.shape
     fa_affine = fa_img.affine

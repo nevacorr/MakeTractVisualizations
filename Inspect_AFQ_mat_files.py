@@ -7,8 +7,8 @@ import os.path as op
 
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
-mat_dir = op.join(f'{working_dir}/genz414/dti64trilin')
-mat_file = 'fiberfiles_genz414.mat' # This was a file that I manually exported from matlab after loading the
+mat_dir = op.join(f'{working_dir}/genz103/dti64trilin')
+mat_file = 'fiberfiles_genz103.mat' # This was a file that I manually exported from matlab after loading the
                                     # AFQ output .mat file given to me for this subject MoriGroups_Cortex_clean_D5_L4.mat).
                                     # The original .mat file contained other variables and was in HDF5 format
 dti_img_file = 'bin/mpfcoreg12.nii.gz'

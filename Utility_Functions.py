@@ -2,6 +2,9 @@
 import pandas as pd
 import numpy as np
 from fury import actor
+import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
+
 
 def load_z_p_data(filepath, filename, tract):
     df = pd.read_csv(f"{filepath}{filename}")
@@ -47,3 +50,34 @@ def check_orientation(interpolated_z_values):
     colors = np.array([position_to_color(i, num_values) for i in range(num_values)])
 
     return colors
+
+def make_legend():
+    # Create a new figure
+    fig, ax = plt.subplots(figsize=(1.2, 0.6))  # Adjust the size to fit your needs
+
+    # Add lines (representing "Female", "Male", "Accelerated")
+    line_female = mlines.Line2D([0, 0.2], [0.87, 0.87], color='red', lw=2, label='Female')
+    line_male = mlines.Line2D([0, 0.2], [0.535, 0.535], color='blue', lw=2, label='Male')
+    line_accel = mlines.Line2D([0, 0.2], [0.20, 0.20], color='green', lw=2, label='Accelerated')
+
+    # Add lines to the axis
+    ax.add_line(line_female)
+    ax.add_line(line_male)
+    ax.add_line(line_accel)
+
+    # Set the limits to ensure all lines fit within the figure
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    # Hide the axis
+    ax.axis('off')
+
+    # Add custom text labels for each line (to mimic a legend)
+    ax.text(0.3, 0.87, 'Female', color='black', fontsize=9, va='center')
+    ax.text(0.3, 0.535, 'Male', color='black', fontsize=9, va='center')
+    ax.text(0.3, 0.20, 'Accelerated', color='black', fontsize=9, va='center')
+
+    # Show the figure
+    plt.show()
+
+make_legend()

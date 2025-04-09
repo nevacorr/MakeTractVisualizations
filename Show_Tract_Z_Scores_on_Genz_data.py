@@ -38,7 +38,7 @@ for sex in ['M', 'F']:
     # ----------------------
     fa_img = nib.load(op.join(img_data_path, 'mpfcoreg12.nii.gz'))
     fa = fa_img.get_fdata()
-    brain_mask_img = nib.load(op.join(img_data_path, 'brainMask.nii.gz'))
+    brain_mask_img = nib.load(op.join(img_data_path, 'highres2lowres.nii.gz'))
     brain_mask_data = brain_mask_img.get_fdata()
 
 # Get affine data

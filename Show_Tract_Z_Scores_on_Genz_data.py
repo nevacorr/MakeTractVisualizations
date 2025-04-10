@@ -11,7 +11,7 @@ from fury.colormap import create_colormap
 from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60, check_orientation
 
 sex = 'M'
-metric = "md"
+metric = "fa"
 check_orientation_flag = 0
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
@@ -138,12 +138,12 @@ for sex in ['F', 'M']:
                              view_up=(0.02, -0.11, 0.99))
 
         elif "Callosum" in tid:
-            scene.set_camera(position=(-2.01, -106.36, 514.35),
+            scene.set_camera(position=(-457.39, -45.17, 241.22),
                              focal_point=(2.00, -2.00, 8.00),
-                             view_up=(0.99, 0.10, 0.03))
+                             view_up=(0.46, -0.14, 0.88))
 
             # window.show(scene, size=(1200, 1200), reset_camera=False)
-
+            #
             # scene.camera_info()
 
             os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
@@ -153,11 +153,13 @@ for sex in ['F', 'M']:
                 out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_Left_{tid}.png'),
                 size=(1200, 1200))
 
-            scene.set_camera(position=(-40.22, -88.87, 515.90),
+            scene.set_camera(position=(438.77, -86.28, 271.47),
                              focal_point=(2.00, -2.00, 8.00),
-                             view_up=(-0.99, -0.12, -0.10))
+                             view_up=(-0.52, -0.02, 0.85))
 
             # window.show(scene, size=(1200, 1200), reset_camera=False)
+            #
+            # scene.camera_info()
 
             os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
@@ -174,6 +176,8 @@ for sex in ['F', 'M']:
         if "Callosum" not in tid:
 
             # window.show(scene, size=(1200, 1200), reset_camera=False)
+
+            # scene.camera_info()
 
             os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 

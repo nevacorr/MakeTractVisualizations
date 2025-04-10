@@ -53,7 +53,7 @@ def check_orientation(interpolated_z_values):
 
     return colors
 
-def make_legend(working_dir):
+def make_legend(working_dir, label):
     # Create a new figure
     fig, ax = plt.subplots(figsize=(1.3, 0.7))
 
@@ -63,7 +63,7 @@ def make_legend(working_dir):
     line_female = mlines.Line2D([0, 0.2], [0.87, 0.87], color='red', lw=2, label='Female')
     line_male = mlines.Line2D([0, 0.2], [0.535, 0.535], color='blue', lw=2, label='Male')
 
-    line_accel = mlines.Line2D([0, 0.2], [0.20, 0.20], color=my_green, lw=2, label='Accelerated')
+    line_accel = mlines.Line2D([0, 0.2], [0.20, 0.20], color=my_green, lw=2, label=label)
 
     # Add lines to the axis
     ax.add_line(line_female)
@@ -80,9 +80,9 @@ def make_legend(working_dir):
     # Add custom text labels for each line (to mimic a legend)
     ax.text(0.3, 0.87, 'Female', color='black', fontsize=10, va='center')
     ax.text(0.3, 0.535, 'Male', color='black', fontsize=10, va='center')
-    ax.text(0.3, 0.20, 'Accelerated', color='black', fontsize=10, va='center')
+    ax.text(0.3, 0.20, label, color='black', fontsize=10, va='center')
 
-    plt.savefig(op.join(working_dir, 'custom_legend.png'))
+    plt.savefig(op.join(working_dir, f'custom_legend_{label}.png'))
 
     # Show the figure
     # plt.show()

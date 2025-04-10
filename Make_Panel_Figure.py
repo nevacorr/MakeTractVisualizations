@@ -8,7 +8,7 @@ from Utility_Functions import make_legend, overlay_images
 import numpy as np
 from PIL import Image
 
-metric='md'
+metric='fa'
 
 # Define crop margins (top, bottom, left, right)
 crop_top = 250
@@ -33,7 +33,8 @@ if metric == 'mpf':
     tract_ids.remove('Uncinate')
     del tract_to_profile['Uncinate']
 
-make_legend(working_dir)
+make_legend(working_dir, 'Accelerated')
+make_legend(working_dir, 'Slowed')
 
 for tid in tract_ids:
     print(f'{tid}')
@@ -88,7 +89,12 @@ for tid in tract_ids:
 
     # Load figure and add legend figure to it
     panel_img_path = op.join(working_dir ,'panel_figures', f'figure_{metric}_{tid}.png')
-    legend_img_path = op.join(working_dir, 'custom_legend.png')
+
+    if (metric == 'fa' and tid in ['IFOF', 'ILF']):
+        legend_img_path = op.join(working_dir, 'custom_legend_Slowed.png')
+    else:
+        legend_img_path = op.join(working_dir, 'custom_legend_Accelerated.png')
+
     save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
 
     combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(245, 550))

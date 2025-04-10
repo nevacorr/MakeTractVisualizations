@@ -4,6 +4,8 @@ import numpy as np
 from fury import actor
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import os.path as op
+from PIL import Image
 
 
 def load_z_p_data(filepath, filename, tract):
@@ -51,14 +53,17 @@ def check_orientation(interpolated_z_values):
 
     return colors
 
-def make_legend():
+def make_legend(working_dir):
     # Create a new figure
-    fig, ax = plt.subplots(figsize=(1.2, 0.6))  # Adjust the size to fit your needs
+    fig, ax = plt.subplots(figsize=(1.3, 0.7))
+
+    my_green = (61 / 255, 219/ 255, 75 / 255)  # Normalized RGB values
 
     # Add lines (representing "Female", "Male", "Accelerated")
     line_female = mlines.Line2D([0, 0.2], [0.87, 0.87], color='red', lw=2, label='Female')
     line_male = mlines.Line2D([0, 0.2], [0.535, 0.535], color='blue', lw=2, label='Male')
-    line_accel = mlines.Line2D([0, 0.2], [0.20, 0.20], color='green', lw=2, label='Accelerated')
+
+    line_accel = mlines.Line2D([0, 0.2], [0.20, 0.20], color=my_green, lw=2, label='Accelerated')
 
     # Add lines to the axis
     ax.add_line(line_female)
@@ -73,11 +78,45 @@ def make_legend():
     ax.axis('off')
 
     # Add custom text labels for each line (to mimic a legend)
-    ax.text(0.3, 0.87, 'Female', color='black', fontsize=9, va='center')
-    ax.text(0.3, 0.535, 'Male', color='black', fontsize=9, va='center')
-    ax.text(0.3, 0.20, 'Accelerated', color='black', fontsize=9, va='center')
+    ax.text(0.3, 0.87, 'Female', color='black', fontsize=10, va='center')
+    ax.text(0.3, 0.535, 'Male', color='black', fontsize=10, va='center')
+    ax.text(0.3, 0.20, 'Accelerated', color='black', fontsize=10, va='center')
+
+    plt.savefig(op.join(working_dir, 'custom_legend.png'))
 
     # Show the figure
-    plt.show()
+    # plt.show()
 
-    return fig, ax
+def overlay_images(big_image_path, small_image_path, save_path, position=(0, 0)):
+    """
+    Overlays a smaller image on a larger image at the specified position and saves the result.
+
+    Parameters:
+    - big_image_path: Path to the large image (background image).
+    - small_image_path: Path to the small image (overlay image).
+    - save_path: Path where the combined image will be saved.
+    - position: Tuple (x, y) specifying the top-left position of the small image on the big image.
+    """
+    # Load the big image and small image
+    big_img = Image.open(big_image_path)
+    small_img = Image.open(small_image_path)
+
+    # Ensure both images are in RGBA mode to handle transparency properly
+    big_img_rgba = big_img.convert("RGBA")
+    small_img_rgba = small_img.convert("RGBA")
+
+    # Create a copy of the big image to overlay the small image on
+    combined_img = big_img_rgba.copy()
+
+    # Position of the small image
+    x_offset, y_offset = position
+
+    # Paste the small image onto the big image at the specified position
+    combined_img.paste(small_img_rgba, (x_offset, y_offset), small_img_rgba)
+
+    # Save the result to the specified path
+    combined_img.save(save_path)
+
+    print(f"Image saved to {save_path}")
+
+    return combined_img

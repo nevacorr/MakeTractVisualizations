@@ -11,13 +11,13 @@ from fury.colormap import create_colormap
 from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60, check_orientation
 
 sex = 'M'
-metric = "fa"
+metric = "md"
 check_orientation_flag = 0
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
 img_dir = 'individual_modality_figs' # directory to place output images into
 
-for sex in ['M', 'F']:
+for sex in ['F', 'M']:
 
     # Load tract statistics data
     z_score_filepath =f"{home_dir}/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
@@ -28,7 +28,7 @@ for sex in ['M', 'F']:
 
     out_folder = os.getcwd()
 
-    # Get image data f
+    # Get image data
     # ----------------------------
     img_data_path = op.join(working_dir, 'genz423/dti64trilin/bin')
     bundle_path = op.join(working_dir, 'new_trk_files')
@@ -110,14 +110,14 @@ for sex in ['M', 'F']:
                 # Make them red
                 colors = np.tile([1, 0, 0], (len(interpolated_z_values), 1))
 
-            # Define a solid yellow color
-            light_yellow = np.array([1, 1, 0.5])
+            # Define a green
+            my_green = ( 0/ 255, 255 / 255, 0 / 255)  # Normalized RGB values
 
             # Find indices where the interpolated p_values <0.05
             significant_mask = interpolated_p_values < 0.05
 
             # Override colors for significant values
-            colors[significant_mask] = light_yellow
+            colors[significant_mask] = my_green
 
             if check_orientation_flag == 1:
                 colors = check_orientation(interpolated_z_values)

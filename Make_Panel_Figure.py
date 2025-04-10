@@ -91,11 +91,11 @@ for tid in tract_ids:
     legend_img_path = op.join(working_dir, 'custom_legend.png')
     save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
 
-    combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(245, 555))
+    combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(245, 550))
 
     combined_img.show()
 
-    mystop=1
+
 
 
 

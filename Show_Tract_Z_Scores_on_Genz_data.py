@@ -13,6 +13,7 @@ from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60,
 from Utility_Functions import view_middle_slice
 from dipy.align.imaffine import (AffineRegistration, MutualInformationMetric, AffineMap)
 from dipy.align.transforms import TranslationTransform3D, RigidTransform3D, AffineTransform3D
+from Inspect_AFQ_mat_files import Inspect_AFQ_mat_files
 
 subj='genz323'
 sex = 'M'
@@ -21,6 +22,10 @@ check_orientation_flag = 0
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
 img_dir = 'individual_modality_figs' # directory to place output images into
+
+# Extract streamlines from .mat file for this subject
+print("Extracting streamlines")
+Inspect_AFQ_mat_files(subj, working_dir)
 
 for sex in ['F', 'M']:
 

@@ -120,3 +120,14 @@ def overlay_images(big_image_path, small_image_path, save_path, position=(0, 0))
     print(f"Image saved to {save_path}")
 
     return combined_img
+
+def view_middle_slice(image1, title, cmap='gray'):
+
+    slice_index = image1.shape[2] // 2  # middle slice
+
+    plt.figure(figsize=(6, 6))
+    plt.imshow(image1[:, :, slice_index].T, cmap=cmap, origin='lower')
+    plt.axis('off')
+    plt.title(title)
+    plt.tight_layout()
+    plt.show(block=False)

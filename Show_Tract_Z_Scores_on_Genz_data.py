@@ -8,8 +8,13 @@ from dipy.io.streamline import load_trk
 from dipy.tracking.streamline import transform_streamlines
 from fury import actor, window
 from fury.colormap import create_colormap
+from matplotlib import pyplot as plt
 from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60, check_orientation
+from Utility_Functions import view_middle_slice
+from dipy.align.imaffine import (AffineRegistration, MutualInformationMetric, AffineMap)
+from dipy.align.transforms import TranslationTransform3D, RigidTransform3D, AffineTransform3D
 
+subj='genz323'
 sex = 'M'
 metric = "fa"
 check_orientation_flag = 0
@@ -28,25 +33,67 @@ for sex in ['F', 'M']:
 
     out_folder = os.getcwd()
 
-    # Get image data
+    # Set image data paths
     # ----------------------------
-    img_data_path = op.join(working_dir, 'genz423/dti64trilin/bin')
+    img_data_path = op.join(working_dir, f'{subj}/dti64trilin/bin')
     bundle_path = op.join(working_dir, 'new_trk_files')
-    dt6_path = op.join(working_dir, 'genz423/dti64trilin')
+    dt6_path = op.join(working_dir, f'{subj}/dti64trilin')
 
     # Read brain anatomy imaging data into memory
     # ----------------------
-    fa_img = nib.load(op.join(img_data_path, 'mpfcoreg12.nii.gz'))
-    fa = fa_img.get_fdata()
-    brain_mask_img = nib.load(op.join(img_data_path, 'brainMask.nii.gz'))
+    lowres_img = nib.load(op.join(img_data_path, 'mpfcoreg12.nii.gz'))
+    highres_img =  nib.load(op.join(img_data_path, f'sub-{subj}-visit2-MEMP-orig_magnet_space_bet.nii.gz'))
+    lowres = lowres_img.get_fdata()
+    highres = highres_img.get_fdata()
+
+    view_middle_slice(lowres, 'lowres image')
+
+    view_middle_slice(highres, 'highres image')
+
+    brain_mask_img = highres_img
+    # brain_mask_img = nib.load(op.join(img_data_path, 'high'))
     # brain_mask_img = nib.load(op.join(img_data_path, 'highres2lowres.nii.gz'))
     brain_mask_data = brain_mask_img.get_fdata()
 
-# Get affine data
-    brain_affine = brain_mask_img.affine
-    brain_shape = brain_mask_img.shape
-    fa_affine = fa_img.affine
-    inv_affine = np.linalg.inv(brain_affine)
+    # Get image data and affines
+    highres_affine = highres_img.affine
+
+    lowres_affine = lowres_img.affine
+
+    # Registration
+    reg = AffineRegistration(metric = MutualInformationMetric(nbins=32),
+                             level_iters=[1000, 100, 10],
+                             sigmas=[3.0, 1.0, 0.0],
+                             factors=[4, 2, 1])
+
+    transform = AffineTransform3D()
+
+    affine_map = reg.optimize(highres, lowres, transform, params0=None,
+                              static_grid2world=highres_affine,
+                              moving_grid2world=lowres_affine)
+
+    # The final affine to transform points from low-res to high-res
+    lowres_to_highres_affine = affine_map.affine
+
+    affine_inv = np.linalg.inv(lowres_to_highres_affine)
+
+    # Resample low-res FA image into high-res space
+    resampled_lowres_to_highres = affine_map.transform(lowres)
+
+    view_middle_slice(resampled_lowres_to_highres, 'lowres to highres')
+
+    plt.show()
+
+    # Save the resampled image in high-res space
+    resampled_lowres_to_highres_img = nib.Nifti1Image(resampled_lowres_to_highres, highres_affine)
+
+    nib.save(resampled_lowres_to_highres_img, 'lowresimg_in_highres_space.nii.gz')
+
+    # # Get affine data
+    #     brain_affine = brain_mask_img.affine
+    #     brain_shape = brain_mask_img.shape
+    #     fa_affine = lowres_img.affine
+    #     inv_affine = np.linalg.inv(brain_affine)
 
     # Loop through tracts and show glass brain for each
     # ----------------------
@@ -71,8 +118,11 @@ for sex in ['F', 'M']:
         sft = load_trk(op.join(bundle_path, f'{tid}.trk'), 'same', bbox_valid_check=False)
         streamlines = sft.streamlines
 
+        affine_12h = affine_map.affine
+
         # Transform streamlines to brain mask space
-        aligned_streamlines = [apply_affine(inv_affine, s) for s in streamlines]
+        aligned_streamlines_inv = [apply_affine(affine_inv, s) for s in streamlines]
+        # aligned_streamlines = [apply_affine(affine_12h, s) for s in streamlines]
 
         # Trim streamlines to the central 60%
         aligned_streamlines = trim_to_central_60(aligned_streamlines)
@@ -84,7 +134,7 @@ for sex in ['F', 'M']:
         scene.background((1, 1, 1))
 
         # Display glass brain
-        brain_actor = actor.contour_from_roi(brain_mask_data, affine=brain_affine, color=[0, 0, 0], opacity=0.05)
+        brain_actor = actor.contour_from_roi(brain_mask_data, affine=affine_12h, color=[0, 0, 0], opacity=0.05)
         scene.add(brain_actor)
 
         # Create an empty list for streamline actors
@@ -142,7 +192,7 @@ for sex in ['F', 'M']:
                              focal_point=(2.00, -2.00, 8.00),
                              view_up=(0.46, -0.14, 0.88))
 
-            # window.show(scene, size=(1200, 1200), reset_camera=False)
+            window.show(scene, size=(1200, 1200), reset_camera=False)
             #
             # scene.camera_info()
 
@@ -157,7 +207,7 @@ for sex in ['F', 'M']:
                              focal_point=(2.00, -2.00, 8.00),
                              view_up=(-0.52, -0.02, 0.85))
 
-            # window.show(scene, size=(1200, 1200), reset_camera=False)
+            window.show(scene, size=(1200, 1200), reset_camera=False)
             #
             # scene.camera_info()
 
@@ -175,7 +225,7 @@ for sex in ['F', 'M']:
 
         if "Callosum" not in tid:
 
-            # window.show(scene, size=(1200, 1200), reset_camera=False)
+            window.show(scene, size=(1200, 1200), reset_camera=False)
 
             # scene.camera_info()
 

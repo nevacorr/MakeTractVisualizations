@@ -1,64 +1,61 @@
-import os.path as op
 import scipy.io
 import nibabel as nib
 import numpy as np
-import os
 import os.path as op
 
-working_dir = os.getcwd()
-home_dir = os.path.expanduser("~")
-mat_dir = op.join(f'{working_dir}/genz423/dti64trilin')
-mat_file = 'fiberfiles_genz423.mat' # This was a file that I manually exported from matlab after loading the
-                                    # AFQ output .mat file given to me for this subject MoriGroups_Cortex_clean_D5_L4.mat).
-                                    # The original .mat file contained other variables and was in HDF5 format
-dti_img_file = 'bin/mpfcoreg12.nii.gz'
+def Inspect_AFQ_mat_files(subj, working_dir):
 
-# Load data
-mat_data = scipy.io.loadmat(op.join(mat_dir, mat_file))
-dti_space_img = nib.load(op.join(mat_dir, dti_img_file))
+    mat_dir = op.join(f'{working_dir}/{subj}/dti64trilin')
+    mat_file = f'fiberfiles_{subj}.mat' # This was a file that I manually exported from matlab after loading the
+                                        # AFQ output .mat file given to me for this subject MoriGroups_Cortex_clean_D5_L4.mat).
+                                        # The original .mat file contained other variables and was in HDF5 format
+    dti_img_file = 'bin/mpfcoreg12.nii.gz'
 
-# Extract image properties
-affine = dti_space_img.affine  # Get the affine transformation
-dims = dti_space_img.shape  # Get the voxel dimensions
+    # Load data
+    mat_data = scipy.io.loadmat(op.join(mat_dir, mat_file))
+    dti_space_img = nib.load(op.join(mat_dir, dti_img_file))
 
-fg = mat_data['fg']
-fibers = fg['fibers']
-names = fg['name'] # tract region names
+    # Extract image properties
+    affine = dti_space_img.affine  # Get the affine transformation
+    dims = dti_space_img.shape  # Get the voxel dimensions
 
-for i in range(fibers.shape[1]):  # Loop over the 20 regions
-    current_fibers = fibers[0, i]  # Extract the current region's fibers
-    fiber_data = []
+    fg = mat_data['fg']
+    fibers = fg['fibers']
+    names = fg['name'] # tract region names
 
-    for j in range(current_fibers.shape[0]):  # Loop over each fiber (streamline)
-        fiber = current_fibers[j]  # Extract the current fiber
+    for i in range(fibers.shape[1]):  # Loop over the 20 regions
+        current_fibers = fibers[0, i]  # Extract the current region's fibers
+        fiber_data = []
 
-        # Check if fiber has the expected shape (1, N, 3), so access fiber[0] to get the actual data
-        fiber_array = fiber[0]  # fiber[0] should now be the (N, 3) array with coordinates
+        for j in range(current_fibers.shape[0]):  # Loop over each fiber (streamline)
+            fiber = current_fibers[j]  # Extract the current fiber
 
-        # Now extract x, y, z coordinates
-        x = fiber_array[0, :]  # x coordinates
-        y = fiber_array[1, :]  # y coordinates
-        z = fiber_array[2, :]  # z coordinates
+            # Check if fiber has the expected shape (1, N, 3), so access fiber[0] to get the actual data
+            fiber_array = fiber[0]  # fiber[0] should now be the (N, 3) array with coordinates
 
-        # Combine x, y, and z arrays element-wise into a single (N, 3) array
-        fiber_points = np.vstack([x, y, z]).T  # Stack vertically and transpose to get (N, 3)
+            # Now extract x, y, z coordinates
+            x = fiber_array[0, :]  # x coordinates
+            y = fiber_array[1, :]  # y coordinates
+            z = fiber_array[2, :]  # z coordinates
 
-        # Append the processed fiber points to fiber_data
-        fiber_data.append(fiber_points)
+            # Combine x, y, and z arrays element-wise into a single (N, 3) array
+            fiber_points = np.vstack([x, y, z]).T  # Stack vertically and transpose to get (N, 3)
 
-    streamline_sequence = nib.streamlines.ArraySequence(fiber_data)
+            # Append the processed fiber points to fiber_data
+            fiber_data.append(fiber_points)
 
-    # Clean up the filename
-    row_name = str(names[0][i]).replace('[', '').replace(']', '').replace(' ', '_')[:100]
-    trk_filename = f"{row_name}.trk"
+        streamline_sequence = nib.streamlines.ArraySequence(fiber_data)
 
-    # Remove any additional quotes if they're present
-    trk_filename = trk_filename.replace("'", "")
+        # Clean up the filename
+        row_name = str(names[0][i]).replace('[', '').replace(']', '').replace(' ', '_')[:100]
+        trk_filename = f"{row_name}.trk"
 
-    # Create Tractogram object
-    tractogram = nib.streamlines.Tractogram(streamline_sequence, affine_to_rasmm=affine)
+        # Remove any additional quotes if they're present
+        trk_filename = trk_filename.replace("'", "")
 
-    # Save to .trk file
-    nib.streamlines.save(tractogram, op.join('new_trk_files', trk_filename))
-    print(f"Saved fibers for {row_name} to {trk_filename}")
-    mystop=1
+        # Create Tractogram object
+        tractogram = nib.streamlines.Tractogram(streamline_sequence, affine_to_rasmm=affine)
+
+        # Save to .trk file
+        nib.streamlines.save(tractogram, op.join('new_trk_files', trk_filename))
+        print(f"Saved fibers for {row_name} to {trk_filename}")

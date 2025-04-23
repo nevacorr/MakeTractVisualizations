@@ -18,18 +18,23 @@ from Inspect_AFQ_mat_files import Inspect_AFQ_mat_files
 
 subj='genz323'
 sex = 'M'
-metric = "fa"
+metric = "md"
 check_orientation_flag = 0
 working_dir = os.getcwd()
+out_folder = working_dir
 home_dir = os.path.expanduser("~")
 img_dir = 'individual_modality_figs' # directory to place output images into
 run_transform_lr_to_hr = 0
+use_highres_for_glass_brain = 0
 
-# Extract streamlines from .mat file for this subject
+# Make directories to write output files to
 shutil.rmtree('new_trk_files', ignore_errors=True)
 os.makedirs('new_trk_files')
+os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
+
+# Extract streamlines from .mat file for this subject
 print("Extracting streamlines")
-Inspect_AFQ_mat_files(subj, working_dir)
+Inspect_AFQ_mat_files(subj, working_dir, use_highres_for_glass_brain)
 
 for sex in ['F', 'M']:
 
@@ -40,7 +45,7 @@ for sex in ['F', 'M']:
     else:
         z_score_filename = f"{metric}_100split_node_stats_female.csv"
 
-    out_folder = os.getcwd()
+
 
     # Set image data paths
     # ----------------------------
@@ -54,19 +59,26 @@ for sex in ['F', 'M']:
     highres_img =  nib.load(op.join(img_data_path, f'sub-{subj}-visit2-MEMP-orig_magnet_space_bet.nii.gz'))
     lowres = lowres_img.get_fdata()
     highres = highres_img.get_fdata()
-    brain_mask_data = (highres > 0).astype(np.uint8)
+    if use_highres_for_glass_brain:
+        brain_mask_data = (highres > 0).astype(np.uint8)
+        brain_affine = highres_img.affine
+    else:
+        brain_mask_img = nib.load(op.join(img_data_path, 'brainMask.nii.gz'))
+        brain_mask_data = brain_mask_img.get_fdata()
+        brain_affine = brain_mask_img.affine
+        inv_affine = np.linalg.inv(brain_affine)
 
-    view_middle_slice(lowres, 'lowres image')
-    view_middle_slice(highres, 'highres image')
-    view_middle_slice(brain_mask_data, 'brain mask')
+    # view_middle_slice(lowres, 'lowres image')
+    # view_middle_slice(highres, 'highres image')
+    # view_middle_slice(brain_mask_data, 'brain mask')
 
-    # Get image data and affines
+    # Get affines
     highres_affine = highres_img.affine
     lowres_affine = lowres_img.affine
 
-    if run_transform_lr_to_hr == 1:
+    if use_highres_for_glass_brain == 1 and run_transform_lr_to_hr == 1:
 
-        # Registration
+        # Perform rgistration
         reg = AffineRegistration(metric = MutualInformationMetric(nbins=32),
                                  level_iters=[1000, 100, 10],
                                  sigmas=[3.0, 1.0, 0.0],
@@ -90,42 +102,14 @@ for sex in ['F', 'M']:
         nib.save(resampled_lowres_to_highres_img, 'lowresimg_in_highres_space.nii.gz')
         np.save('lowres_to_highres_affine.npy', lowres_to_highres_affine)
 
-    else:
+    elif use_highres_for_glass_brain:
 
         # Load the previously saved affine and resampled image
         lowres_to_highres_affine = np.load('lowres_to_highres_affine.npy')
         resampled_lowres_to_highres_img = nib.load('lowresimg_in_highres_space.nii.gz')
+    #   view_middle_slice(resampled_lowres_to_highres_img.get_fdata(), 'lowres to highres')
 
-    print('Highres affine matrix:')
-    print(highres_affine)
-    print('Lowres affine matrix:')
-    print(lowres_affine)
-    print("Low-res to High-res affine matrix:")
-    print(lowres_to_highres_affine)
-    # Get the origin (translation vector)
-    lowres_to_highres_origin = lowres_to_highres_affine[:3, 3]
-    highres_origin = highres_affine[:3, 3]
-
-    print("Low-res to high res origin:", lowres_to_highres_origin)
-    print("High-res origin:", highres_origin)
-    lowres_orientation = lowres_to_highres_affine[:3, :3]
-    highres_orientation = highres_affine[:3, :3]
-
-    print("Low-res to high res orientation matrix:\n", lowres_orientation)
-    print("High-res orientation matrix:\n", highres_orientation)
-
-    # Low-res to high-res origin offset (difference between origins)
-    origin_offset = highres_origin - lowres_to_highres_affine[:3, 3]
-
-    # Update the affine matrix to account for the origin difference
-    lowres_to_highres_affine[:3, 3] += origin_offset
-
-    print("Low-res to high res origin after correction for origin offset:", lowres_to_highres_origin)
-    print("High-res origin:", highres_origin)
-
-    view_middle_slice(resampled_lowres_to_highres_img.get_fdata(), 'lowres to highres')
-
-    inv_affine = np.linalg.inv(lowres_to_highres_affine)
+        inv_lr_to_hr_affine = np.linalg.inv(lowres_to_highres_affine)
 
     # Loop through tracts and show glass brain for each
     # ----------------------
@@ -146,11 +130,14 @@ for sex in ['F', 'M']:
         # Load tract streamlines
         trk_path = op.join(bundle_path, f'{tid}.trk')
         sft = load_trk(op.join(bundle_path, f'{tid}.trk'), 'same', bbox_valid_check=False)
+        # sft.to_vox()  #changes coordinates of streamlines to be same as voxel diffusion image
         streamlines = sft.streamlines
 
         # Transform streamlines to brain mask space]
-        aligned_streamlines = transform_streamlines(streamlines, lowres_to_highres_affine)
-        # aligned_streamlines = [apply_affine(lowres_to_highres_affine, s) for s in streamlines]
+        if use_highres_for_glass_brain:
+            aligned_streamlines = transform_streamlines(streamlines, inv_lr_to_hr_affine)
+        else:
+            aligned_streamlines = [apply_affine(inv_affine, s) for s in streamlines]
 
         # Trim streamlines to the central 60%
         aligned_streamlines = trim_to_central_60(aligned_streamlines)
@@ -162,7 +149,7 @@ for sex in ['F', 'M']:
         scene.background((1, 1, 1))
 
         # Display glass brain
-        brain_actor = actor.contour_from_roi(brain_mask_data, color=[0, 0, 0], opacity=0.05)
+        brain_actor = actor.contour_from_roi(brain_mask_data, affine = brain_affine, color=[0, 0, 0], opacity=0.05)
         scene.add(brain_actor)
 
         # Create an empty list for streamline actors
@@ -256,8 +243,6 @@ for sex in ['F', 'M']:
             window.show(scene, size=(1200, 1200), reset_camera=False)
 
             # scene.camera_info()
-
-            os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
             window.record(
                 scene=scene,

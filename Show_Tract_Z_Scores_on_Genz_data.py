@@ -54,14 +54,11 @@ for sex in ['F', 'M']:
     highres_img =  nib.load(op.join(img_data_path, f'sub-{subj}-visit2-MEMP-orig_magnet_space_bet.nii.gz'))
     lowres = lowres_img.get_fdata()
     highres = highres_img.get_fdata()
+    brain_mask_data = (highres > 0).astype(np.uint8)
 
     view_middle_slice(lowres, 'lowres image')
     view_middle_slice(highres, 'highres image')
-
-    brain_mask_img = highres_img
-    # brain_mask_img = nib.load(op.join(img_data_path, 'high'))
-    # brain_mask_img = nib.load(op.join(img_data_path, 'highres2lowres.nii.gz'))
-    brain_mask_data = brain_mask_img.get_fdata()
+    view_middle_slice(brain_mask_data, 'brain mask')
 
     # Get image data and affines
     highres_affine = highres_img.affine

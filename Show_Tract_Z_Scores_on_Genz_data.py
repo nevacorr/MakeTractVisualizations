@@ -2,6 +2,7 @@ import os
 import os.path as op
 import nibabel as nib
 import numpy as np
+import shutil
 from nibabel.affines import apply_affine
 import pandas as pd
 from dipy.io.streamline import load_trk
@@ -22,8 +23,11 @@ check_orientation_flag = 0
 working_dir = os.getcwd()
 home_dir = os.path.expanduser("~")
 img_dir = 'individual_modality_figs' # directory to place output images into
+run_transform_lr_to_hr = 0
 
 # Extract streamlines from .mat file for this subject
+shutil.rmtree('new_trk_files', ignore_errors=True)
+os.makedirs('new_trk_files')
 print("Extracting streamlines")
 Inspect_AFQ_mat_files(subj, working_dir)
 
@@ -52,7 +56,6 @@ for sex in ['F', 'M']:
     highres = highres_img.get_fdata()
 
     view_middle_slice(lowres, 'lowres image')
-
     view_middle_slice(highres, 'highres image')
 
     brain_mask_img = highres_img
@@ -62,48 +65,73 @@ for sex in ['F', 'M']:
 
     # Get image data and affines
     highres_affine = highres_img.affine
-
     lowres_affine = lowres_img.affine
 
-    # Registration
-    reg = AffineRegistration(metric = MutualInformationMetric(nbins=32),
-                             level_iters=[1000, 100, 10],
-                             sigmas=[3.0, 1.0, 0.0],
-                             factors=[4, 2, 1])
+    if run_transform_lr_to_hr == 1:
 
-    transform = AffineTransform3D()
+        # Registration
+        reg = AffineRegistration(metric = MutualInformationMetric(nbins=32),
+                                 level_iters=[1000, 100, 10],
+                                 sigmas=[3.0, 1.0, 0.0],
+                                 factors=[4, 2, 1])
 
-    affine_map = reg.optimize(highres, lowres, transform, params0=None,
-                              static_grid2world=highres_affine,
-                              moving_grid2world=lowres_affine)
+        transform = AffineTransform3D()
 
-    # The final affine to transform points from low-res to high-res
-    lowres_to_highres_affine = affine_map.affine
+        affine_map = reg.optimize(highres, lowres, transform, params0=None,
+                                  static_grid2world=highres_affine,
+                                  moving_grid2world=lowres_affine)
 
-    affine_inv = np.linalg.inv(lowres_to_highres_affine)
+        # The final affine to transform points from low-res to high-res
+        lowres_to_highres_affine = affine_map.affine
 
-    # Resample low-res FA image into high-res space
-    resampled_lowres_to_highres = affine_map.transform(lowres)
+        # Resample low-res FA image into high-res space
+        resampled_lowres_to_highres = affine_map.transform(lowres)
 
-    view_middle_slice(resampled_lowres_to_highres, 'lowres to highres')
+        # Save the resampled image in high-res space
+        resampled_lowres_to_highres_img = nib.Nifti1Image(resampled_lowres_to_highres, highres_affine)
 
-    plt.show()
+        nib.save(resampled_lowres_to_highres_img, 'lowresimg_in_highres_space.nii.gz')
+        np.save('lowres_to_highres_affine.npy', lowres_to_highres_affine)
 
-    # Save the resampled image in high-res space
-    resampled_lowres_to_highres_img = nib.Nifti1Image(resampled_lowres_to_highres, highres_affine)
+    else:
 
-    nib.save(resampled_lowres_to_highres_img, 'lowresimg_in_highres_space.nii.gz')
+        # Load the previously saved affine and resampled image
+        lowres_to_highres_affine = np.load('lowres_to_highres_affine.npy')
+        resampled_lowres_to_highres_img = nib.load('lowresimg_in_highres_space.nii.gz')
 
-    # # Get affine data
-    #     brain_affine = brain_mask_img.affine
-    #     brain_shape = brain_mask_img.shape
-    #     fa_affine = lowres_img.affine
-    #     inv_affine = np.linalg.inv(brain_affine)
+    print('Highres affine matrix:')
+    print(highres_affine)
+    print('Lowres affine matrix:')
+    print(lowres_affine)
+    print("Low-res to High-res affine matrix:")
+    print(lowres_to_highres_affine)
+    # Get the origin (translation vector)
+    lowres_to_highres_origin = lowres_to_highres_affine[:3, 3]
+    highres_origin = highres_affine[:3, 3]
+
+    print("Low-res to high res origin:", lowres_to_highres_origin)
+    print("High-res origin:", highres_origin)
+    lowres_orientation = lowres_to_highres_affine[:3, :3]
+    highres_orientation = highres_affine[:3, :3]
+
+    print("Low-res to high res orientation matrix:\n", lowres_orientation)
+    print("High-res orientation matrix:\n", highres_orientation)
+
+    # Low-res to high-res origin offset (difference between origins)
+    origin_offset = highres_origin - lowres_to_highres_affine[:3, 3]
+
+    # Update the affine matrix to account for the origin difference
+    lowres_to_highres_affine[:3, 3] += origin_offset
+
+    print("Low-res to high res origin after correction for origin offset:", lowres_to_highres_origin)
+    print("High-res origin:", highres_origin)
+
+    view_middle_slice(resampled_lowres_to_highres_img.get_fdata(), 'lowres to highres')
+
+    inv_affine = np.linalg.inv(lowres_to_highres_affine)
 
     # Loop through tracts and show glass brain for each
     # ----------------------
-    old_tract_ids = ['ARC_L', 'ARC_R', 'ATR_L', 'ATR_R', 'IFO_L', 'IFO_R', 'ILF_L', 'ILF_R', 'SLF_L', 'SLF_R', 'UNC_L', 'UNC_R', 'CST_L', 'CST_R']
-
     tract_ids = ['Left_Arcuate', 'Right_Arcuate', 'Left_Thalamic_Radiation', 'Right_Thalamic_Radiation', 'Left_IFOF',
                  'Right_IFOF', 'Left_ILF', 'Right_ILF', 'Left_SLF', 'Right_SLF', 'Left_Uncinate', 'Right_Uncinate',
                  'Left_Corticospinal', 'Right_Corticospinal', 'Callosum_Forceps_Major', 'Callosum_Forceps_Minor']
@@ -123,11 +151,9 @@ for sex in ['F', 'M']:
         sft = load_trk(op.join(bundle_path, f'{tid}.trk'), 'same', bbox_valid_check=False)
         streamlines = sft.streamlines
 
-        affine_12h = affine_map.affine
-
-        # Transform streamlines to brain mask space
-        aligned_streamlines_inv = [apply_affine(affine_inv, s) for s in streamlines]
-        # aligned_streamlines = [apply_affine(affine_12h, s) for s in streamlines]
+        # Transform streamlines to brain mask space]
+        aligned_streamlines = transform_streamlines(streamlines, lowres_to_highres_affine)
+        # aligned_streamlines = [apply_affine(lowres_to_highres_affine, s) for s in streamlines]
 
         # Trim streamlines to the central 60%
         aligned_streamlines = trim_to_central_60(aligned_streamlines)
@@ -139,7 +165,7 @@ for sex in ['F', 'M']:
         scene.background((1, 1, 1))
 
         # Display glass brain
-        brain_actor = actor.contour_from_roi(brain_mask_data, affine=affine_12h, color=[0, 0, 0], opacity=0.05)
+        brain_actor = actor.contour_from_roi(brain_mask_data, color=[0, 0, 0], opacity=0.05)
         scene.add(brain_actor)
 
         # Create an empty list for streamline actors

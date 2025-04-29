@@ -6,6 +6,7 @@ from dipy.io.stateful_tractogram import StatefulTractogram, Space
 from fury import actor, window
 import nibabel as nib
 from Utility_Functions import lines_as_tubes
+from nibabel.orientations import aff2axcodes
 
 working_dir = os.getcwd()
 
@@ -31,8 +32,12 @@ tid = "Left Arcuate"
 
 # brain_mask = nib.load(op.join(data_folder, "bin", "brainMask.nii.gz"))
 brain_mask = nib.load(op.join(data_folder, "bin", "sub-genz323-visit2-MEMP-orig_Magnet_space_bet.nii.gz"))
+print("Highres orientation:", aff2axcodes(brain_mask.affine))
+
 
 brain_mask = nib.as_closest_canonical(brain_mask)
+print("Highres orientation:", aff2axcodes(brain_mask.affine))
+
 
 sft = StatefulTractogram(fiber_dict[tid],
                          reference=brain_mask,

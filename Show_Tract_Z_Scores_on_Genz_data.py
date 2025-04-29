@@ -108,34 +108,31 @@ for sex in ['F', 'M']:
             # Apply a colormap to non significant values.
 
             if sex == 'M':
-                default_color = [0, 0, 1]  # Blue
+                # Make them blue
+                colors = np.tile([0, 0, 1], (len(interpolated_z_values), 1))
             else:
-                default_color = [1, 0, 0]  # Red
+                # Make them red
+                colors = np.tile([1, 0, 0], (len(interpolated_z_values), 1))
 
-            my_green = [0, 1, 0]  # Green
+                # Define a green
+            my_green = (0 / 255, 255 / 255, 0 / 255)  # Normalized RGB values
 
-            # Create an array filled with default_color
-            colors = np.tile(default_color, (len(sl), 1))  # shape (num_points, 3)
-
-            # Find indices where the p-value < 0.05
+            # Find indices where the interpolated p_values <0.05
             significant_mask = interpolated_p_values < 0.05
 
-            # if check_orientation_flag == 1:
-            #     colors = check_orientation(interpolated_z_values)
-
-            # Apply green color at those indices
+            # Override colors for significant values
             colors[significant_mask] = my_green
 
-            # Save
-            all_streamlines.append(sl)
-            all_colors.append(colors)
+            if check_orientation_flag == 1:
+                colors = check_orientation(interpolated_z_values)
 
-        # Stack everything together
-        final_colors = np.vstack(all_colors)
+            # Create streamline actor and add it to the list
+            streamline_actor = actor.line([sl], colors=colors)
+            streamline_actors.append(streamline_actor)
 
-        # Now create the actor
-        arc_actor = lines_as_tubes(all_streamlines, 1, colors=final_colors, opacity=0.8)
-        scene.add(arc_actor)
+        # Add all streamline actors to the scene
+        for sactor in streamline_actors:
+            scene.add(sactor)
 
         scene.background((1, 1, 1))
 
@@ -154,10 +151,10 @@ for sex in ['F', 'M']:
                              focal_point=(196.00, 213.50, 272.50),
                              view_up=(0.00, 1.00, -0.01))
 
-        window.show(scene, size=(1200, 1200), reset_camera=False)
+        # window.show(scene, size=(1200, 1200), reset_camera=False)
         # scene.camera_info()
         tid_no_spaces = tid.replace(' ', '_')
         window.record(
             scene=scene,
-            out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid_no_spaces}tubes.png'),
+            out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid_no_spaces}.png'),
             size=(1200, 1200))

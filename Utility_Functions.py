@@ -17,8 +17,8 @@ def load_z_p_data(filepath, filename, tract):
     adjp = df.loc[df["Tract"] == tract, "adjusted_p_value"].values
     return z, adjp
 
-def lines_as_tubes(sl, line_width, colors, **kwargs):
-    line_actor = actor.line(sl, colors=colors, **kwargs)
+def lines_as_tubes(sl, line_width, **kwargs):
+    line_actor = actor.line(sl, **kwargs)
     line_actor.GetProperty().SetRenderLinesAsTubes(1)
     line_actor.GetProperty().SetLineWidth(line_width)
     return line_actor

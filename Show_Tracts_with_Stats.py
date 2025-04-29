@@ -1,5 +1,3 @@
-import os
-
 import h5py
 import numpy as np
 import os.path as op
@@ -31,8 +29,10 @@ fiber_dict = extract_fiber_dict(op.join(data_folder, 'fibers/MoriGroups_Cortex_c
 
 tid = "Left Arcuate"
 
-brain_mask = nib.load(op.join(data_folder, "bin", "brainMask.nii.gz"))
-# brain_mask = nib.load(op.join(data_folder, "bin", "sub-genz323-visit2-MEMP-orig_Magnet_space_bet.nii.gz"))
+# brain_mask = nib.load(op.join(data_folder, "bin", "brainMask.nii.gz"))
+brain_mask = nib.load(op.join(data_folder, "bin", "sub-genz323-visit2-MEMP-orig_Magnet_space_bet.nii.gz"))
+
+brain_mask = nib.as_closest_canonical(brain_mask)
 
 sft = StatefulTractogram(fiber_dict[tid],
                          reference=brain_mask,

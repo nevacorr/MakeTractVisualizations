@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import os.path as op
 from PIL import Image
-
+import h5py
 
 def load_z_p_data(filepath, filename, tract):
     df = pd.read_csv(f"{filepath}{filename}")
@@ -131,3 +131,15 @@ def view_middle_slice(image1, title, cmap='gray'):
     plt.title(title)
     plt.tight_layout()
     plt.show(block=False)
+
+def extract_fiber_dict(mat_file):
+    data = h5py.File(mat_file)
+    fg = data['fg']
+    fibers = fg["fibers"]
+    coords = [[np.array(data[data[fibers[jj][0]][0][ii]])
+               for ii in range(data[fibers[jj][0]].shape[-1])]
+             for jj in range(20)]
+    name = fg["name"]
+    names = [''.join([chr(ii) for ii in np.squeeze(np.array(data[name[jj][0]][:]))])
+             for jj in range(20)]
+    return dict(zip(names, coords))

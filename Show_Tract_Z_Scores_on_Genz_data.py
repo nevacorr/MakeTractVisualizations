@@ -90,6 +90,10 @@ for sex in ['F', 'M']:
         # Create an empty list for streamline actors
         streamline_actors = []
 
+        # Create lists to store streamlines and colors
+        all_streamlines = []
+        all_colors = []
+
         for sl in aligned_streamlines:
             # interpolate the 60 tract profiles values to match the number of points
             # in the streamline:
@@ -104,33 +108,34 @@ for sex in ['F', 'M']:
             # Apply a colormap to non significant values.
 
             if sex == 'M':
-                # Make them blue
-                colors = np.tile([0, 0, 1], (len(interpolated_z_values), 1))
+                default_color = [0, 0, 1]  # Blue
             else:
-                # Make them red
-                colors = np.tile([1, 0, 0], (len(interpolated_z_values), 1))
+                default_color = [1, 0, 0]  # Red
 
-            # Define a green
-            my_green = ( 0/ 255, 255 / 255, 0 / 255)  # Normalized RGB values
+            my_green = [0, 1, 0]  # Green
 
-            # Find indices where the interpolated p_values <0.05
+            # Create an array filled with default_color
+            colors = np.tile(default_color, (len(sl), 1))  # shape (num_points, 3)
+
+            # Find indices where the p-value < 0.05
             significant_mask = interpolated_p_values < 0.05
 
-            # Override colors for significant values
+            # if check_orientation_flag == 1:
+            #     colors = check_orientation(interpolated_z_values)
+
+            # Apply green color at those indices
             colors[significant_mask] = my_green
 
-            if check_orientation_flag == 1:
-                colors = check_orientation(interpolated_z_values)
+            # Save
+            all_streamlines.append(sl)
+            all_colors.append(colors)
 
-            # # Create streamline actor and add it to the list
-            streamline_actor = actor.line([sl], colors=colors)
-            streamline_actors.append(streamline_actor)
+        # Stack everything together
+        final_colors = np.vstack(all_colors)
 
-        arc_actor = lines_as_tubes(streamline_actors, 8, colors=colors, opacity=0.1)
+        # Now create the actor
+        arc_actor = lines_as_tubes(all_streamlines, 1, colors=final_colors, opacity=0.8)
         scene.add(arc_actor)
-        # Add all streamline actors to the scene
-        # for sactor in streamline_actors:
-        #     scene.add(sactor)
 
         scene.background((1, 1, 1))
 
@@ -149,10 +154,10 @@ for sex in ['F', 'M']:
                              focal_point=(196.00, 213.50, 272.50),
                              view_up=(0.00, 1.00, -0.01))
 
-        # window.show(scene, size=(1200, 1200), reset_camera=False)
+        window.show(scene, size=(1200, 1200), reset_camera=False)
         # scene.camera_info()
         tid_no_spaces = tid.replace(' ', '_')
         window.record(
             scene=scene,
-            out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid_no_spaces}.png'),
+            out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid_no_spaces}tubes.png'),
             size=(1200, 1200))

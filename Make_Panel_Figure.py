@@ -8,7 +8,7 @@ from Utility_Functions import make_legend, overlay_images
 import numpy as np
 from PIL import Image
 
-metric='fa'
+metric='md'
 
 # Define crop margins (top, bottom, left, right)
 crop_top = 250
@@ -41,9 +41,9 @@ for tid in tract_ids:
     p = tract_to_profile[tid]
 
     if "Callosum" in tid:
-        image_files = [f'{streamline_dir}/{metric}_F_Left_{tid}.png', f'{streamline_dir}/{metric}_F_Right_{tid}.png',
-                   f'{streamline_dir}/{metric}_M_Left_{tid}.png',
-                   f'{streamline_dir}/{metric}_M_Right_{tid}.png', f'{profdir}/tracts_{metric}_splits_100{p}_new_format.png',
+        image_files = [f'{streamline_dir}/{metric}_F_{tid}.png',
+                   f'{streamline_dir}/{metric}_M_{tid}.png',
+                   f'{profdir}/tracts_{metric}_splits_100{p}_new_format.png',
                    f'{profdir}/tracts_{metric}_splits_100{p}_new_format.png']
     else:
         image_files = [f'{streamline_dir}/{metric}_F_Left_{tid}.png', f'{streamline_dir}/{metric}_F_Right_{tid}.png',

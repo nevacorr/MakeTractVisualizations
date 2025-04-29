@@ -5,12 +5,9 @@ import numpy as np
 import shutil
 import pandas as pd
 from fury import actor, window
-from fury.colormap import create_colormap
-from matplotlib import pyplot as plt
 from dipy.io.stateful_tractogram import StatefulTractogram, Space
 from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60, check_orientation
 from Utility_Functions import view_middle_slice, extract_fiber_dict
-from nibabel.orientations import aff2axcodes
 
 subj='genz323'
 sex = 'M'
@@ -21,6 +18,8 @@ out_folder = working_dir
 home_dir = os.path.expanduser("~")
 img_dir = 'individual_modality_figs' # directory to place output images into
 use_highres_for_glass_brain = 1
+
+os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
 # Extract streamlines from .mat file for this subject
 print("Extracting streamlines")
@@ -55,6 +54,10 @@ for sex in ['F', 'M']:
     # Loop through tracts and show glass brain for each
     # ----------------------
     tract_ids = fiber_dict.keys()
+    substrings_to_remove = ['Cingulate', 'Hippocampus']
+    tract_ids = [item for item in tract_ids
+                 if not any(s in item for s in substrings_to_remove)
+                 ]
 
     if metric == 'mpf':
         tract_ids.remove('Left Uncinate')
@@ -119,65 +122,37 @@ for sex in ['F', 'M']:
             if check_orientation_flag == 1:
                 colors = check_orientation(interpolated_z_values)
 
-            # Create streamline actor and add it to the list
+            # # Create streamline actor and add it to the list
             streamline_actor = actor.line([sl], colors=colors)
             streamline_actors.append(streamline_actor)
 
+        arc_actor = lines_as_tubes(streamline_actors, 8, colors=colors, opacity=0.1)
+        scene.add(arc_actor)
         # Add all streamline actors to the scene
-        for sactor in streamline_actors:
-            scene.add(sactor)
+        # for sactor in streamline_actors:
+        #     scene.add(sactor)
 
         scene.background((1, 1, 1))
 
-        # if tid.startswith("L"):
-        #     scene.set_camera(position=(-511.45, -62.25, 13.31),
-        #                      focal_point=(2.00, -2.00, 8.00),
-        #                      view_up=(0.02, -0.11, 0.99))
-        #
-        # elif "Callosum" in tid:
-        #     scene.set_camera(position=(-457.39, -45.17, 241.22),
-        #                      focal_point=(2.00, -2.00, 8.00),
-        #                      view_up=(0.46, -0.14, 0.88))
+        if tid.startswith("L"):
+            scene.set_camera(position=(-815.51, 307.11, 201.81),
+                             focal_point=(196.00, 213.50, 272.50),
+                             view_up=(-0.08, -0.12, 0.99))
 
-        window.show(scene, size=(1200, 1200), reset_camera=False)
-            #
-            # scene.camera_info()
+        elif tid.startswith("R"):
+            scene.set_camera(position=(1211.85, 217.24, 202.10),
+                             focal_point=(196.00, 213.50, 272.50),
+                             view_up=(0.07, -0.17, 0.98))
 
-            # os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
+        elif "Callosum" in tid:
+            scene.set_camera(position=(151.58, 219.43, 1289.80),
+                             focal_point=(196.00, 213.50, 272.50),
+                             view_up=(0.00, 1.00, -0.01))
 
-            # window.record(
-            #     scene=scene,
-            #     out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_Left_{tid}.png'),
-            #     size=(1200, 1200))
-            #
-            # scene.set_camera(position=(438.77, -86.28, 271.47),
-            #                  focal_point=(2.00, -2.00, 8.00),
-            #                  view_up=(-0.52, -0.02, 0.85))
-            #
-            # window.show(scene, size=(1200, 1200), reset_camera=False)
-            #
-            # scene.camera_info()
-
-            # os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
-
-            # window.record(
-            #     scene=scene,
-            #     out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_Right_{tid}.png'),
-            #     size=(1200, 1200))
-
-        # else:
-            # scene.set_camera(position=(516.43, -16.32, -41.44),
-            #                  focal_point=(2.00, -2.00, 8.00),
-            #                  view_up=(0.09, -0.05, 0.99))
-
-        # if "Callosum" not in tid:
-
-            # window.show(scene, size=(1200, 1200), reset_camera=False)
-
-            # scene.camera_info()
-
-            # window.record(
-            #     scene=scene,
-            #     out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
-            #     size=(1200, 1200))
-
+        # window.show(scene, size=(1200, 1200), reset_camera=False)
+        # scene.camera_info()
+        tid_no_spaces = tid.replace(' ', '_')
+        window.record(
+            scene=scene,
+            out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid_no_spaces}.png'),
+            size=(1200, 1200))

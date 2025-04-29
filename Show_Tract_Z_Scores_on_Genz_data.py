@@ -3,18 +3,14 @@ import os.path as op
 import nibabel as nib
 import numpy as np
 import shutil
-from nibabel.affines import apply_affine
 import pandas as pd
-from dipy.io.streamline import load_trk
-from dipy.tracking.streamline import transform_streamlines
 from fury import actor, window
 from fury.colormap import create_colormap
 from matplotlib import pyplot as plt
+from dipy.io.stateful_tractogram import StatefulTractogram, Space
 from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60, check_orientation
-from Utility_Functions import view_middle_slice
-from dipy.align.imaffine import (AffineRegistration, MutualInformationMetric, AffineMap)
-from dipy.align.transforms import TranslationTransform3D, RigidTransform3D, AffineTransform3D
-from Inspect_AFQ_mat_files import Inspect_AFQ_mat_files
+from Utility_Functions import view_middle_slice, extract_fiber_dict
+from nibabel.orientations import aff2axcodes
 
 subj='genz323'
 sex = 'M'
@@ -24,17 +20,12 @@ working_dir = os.getcwd()
 out_folder = working_dir
 home_dir = os.path.expanduser("~")
 img_dir = 'individual_modality_figs' # directory to place output images into
-run_transform_lr_to_hr = 0
-use_highres_for_glass_brain = 0
-
-# Make directories to write output files to
-shutil.rmtree('new_trk_files', ignore_errors=True)
-os.makedirs('new_trk_files')
-os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
+use_highres_for_glass_brain = 1
 
 # Extract streamlines from .mat file for this subject
 print("Extracting streamlines")
-Inspect_AFQ_mat_files(subj, working_dir, use_highres_for_glass_brain)
+data_folder = f"{working_dir}/genz323/dti64trilin/"
+fiber_dict = extract_fiber_dict(op.join(data_folder, 'fibers/MoriGroups_Cortex_clean_D5_L4.mat'))
 
 for sex in ['F', 'M']:
 
@@ -45,111 +36,52 @@ for sex in ['F', 'M']:
     else:
         z_score_filename = f"{metric}_100split_node_stats_female.csv"
 
-
-
     # Set image data paths
     # ----------------------------
     img_data_path = op.join(working_dir, f'{subj}/dti64trilin/bin')
-    bundle_path = op.join(working_dir, 'new_trk_files')
     dt6_path = op.join(working_dir, f'{subj}/dti64trilin')
 
     # Read brain anatomy imaging data into memory
-    # ----------------------
-    lowres_img = nib.load(op.join(img_data_path, 'mpfcoreg12.nii.gz'))
-    highres_img =  nib.load(op.join(img_data_path, f'sub-{subj}-visit2-MEMP-orig_magnet_space_bet.nii.gz'))
-    lowres = lowres_img.get_fdata()
-    highres = highres_img.get_fdata()
+    # -------------------
     if use_highres_for_glass_brain:
-        brain_mask_data = (highres > 0).astype(np.uint8)
-        brain_affine = highres_img.affine
+        brain_mask_img = nib.load(op.join(img_data_path, f'sub-{subj}-visit2-MEMP-orig_magnet_space_bet.nii.gz'))
+        brain_mask_img = nib.as_closest_canonical(brain_mask_img) # convert brain image to RAS orientation
+        brain_mask_data = brain_mask_img.get_fdata()
+        brain_mask_data = (brain_mask_data > 0).astype(np.uint8)
     else:
         brain_mask_img = nib.load(op.join(img_data_path, 'brainMask.nii.gz'))
         brain_mask_data = brain_mask_img.get_fdata()
-        brain_affine = brain_mask_img.affine
-        inv_affine = np.linalg.inv(brain_affine)
-
-    # view_middle_slice(lowres, 'lowres image')
-    # view_middle_slice(highres, 'highres image')
-    # view_middle_slice(brain_mask_data, 'brain mask')
-
-    # Get affines
-    highres_affine = highres_img.affine
-    lowres_affine = lowres_img.affine
-
-    if use_highres_for_glass_brain == 1 and run_transform_lr_to_hr == 1:
-
-        # Perform rgistration
-        reg = AffineRegistration(metric = MutualInformationMetric(nbins=32),
-                                 level_iters=[1000, 100, 10],
-                                 sigmas=[3.0, 1.0, 0.0],
-                                 factors=[4, 2, 1])
-
-        transform = AffineTransform3D()
-
-        affine_map = reg.optimize(highres, lowres, transform, params0=None,
-                                  static_grid2world=highres_affine,
-                                  moving_grid2world=lowres_affine)
-
-        # The final affine to transform points from low-res to high-res
-        lowres_to_highres_affine = affine_map.affine
-
-        # Resample low-res FA image into high-res space
-        resampled_lowres_to_highres = affine_map.transform(lowres)
-
-        # Save the resampled image in high-res space
-        resampled_lowres_to_highres_img = nib.Nifti1Image(resampled_lowres_to_highres, highres_affine)
-
-        nib.save(resampled_lowres_to_highres_img, 'lowresimg_in_highres_space.nii.gz')
-        np.save('lowres_to_highres_affine.npy', lowres_to_highres_affine)
-
-    elif use_highres_for_glass_brain:
-
-        # Load the previously saved affine and resampled image
-        lowres_to_highres_affine = np.load('lowres_to_highres_affine.npy')
-        resampled_lowres_to_highres_img = nib.load('lowresimg_in_highres_space.nii.gz')
-    #   view_middle_slice(resampled_lowres_to_highres_img.get_fdata(), 'lowres to highres')
-
-        inv_lr_to_hr_affine = np.linalg.inv(lowres_to_highres_affine)
 
     # Loop through tracts and show glass brain for each
     # ----------------------
-    tract_ids = ['Left_Arcuate', 'Right_Arcuate', 'Left_Thalamic_Radiation', 'Right_Thalamic_Radiation', 'Left_IFOF',
-                 'Right_IFOF', 'Left_ILF', 'Right_ILF', 'Left_SLF', 'Right_SLF', 'Left_Uncinate', 'Right_Uncinate',
-                 'Left_Corticospinal', 'Right_Corticospinal', 'Callosum_Forceps_Major', 'Callosum_Forceps_Minor']
+    tract_ids = fiber_dict.keys()
 
     if metric == 'mpf':
-        tract_ids.remove('Left_Uncinate')
-        tract_ids.remove('Right_Uncinate')
+        tract_ids.remove('Left Uncinate')
+        tract_ids.remove('Right Uncinate')
 
     for tid in tract_ids:
         print(tid)
 
         # Load zscore values
-        zvect, pvect = load_z_p_data(z_score_filepath, z_score_filename, tid)
+        zvect, pvect = load_z_p_data(z_score_filepath, z_score_filename, tid.replace(' ', '_'))
 
         # Load tract streamlines
-        trk_path = op.join(bundle_path, f'{tid}.trk')
-        sft = load_trk(op.join(bundle_path, f'{tid}.trk'), 'same', bbox_valid_check=False)
-        # sft.to_vox()  #changes coordinates of streamlines to be same as voxel diffusion image
-        streamlines = sft.streamlines
+        sft = StatefulTractogram(fiber_dict[tid],
+                                 reference=brain_mask_img,
+                                 space=Space.RASMM)
 
-        # Transform streamlines to brain mask space]
-        if use_highres_for_glass_brain:
-            aligned_streamlines = transform_streamlines(streamlines, inv_lr_to_hr_affine)
-        else:
-            aligned_streamlines = [apply_affine(inv_affine, s) for s in streamlines]
+        sft.to_vox()
 
         # Trim streamlines to the central 60%
-        aligned_streamlines = trim_to_central_60(aligned_streamlines)
-
-        streamline_points = np.vstack(aligned_streamlines)  # Flatten all points into one array
+        aligned_streamlines = trim_to_central_60(sft.streamlines)
 
         # Making a `scene`
         scene = window.Scene()
         scene.background((1, 1, 1))
 
         # Display glass brain
-        brain_actor = actor.contour_from_roi(brain_mask_data, affine = brain_affine, color=[0, 0, 0], opacity=0.05)
+        brain_actor = actor.contour_from_roi(brain_mask_data, color=[0, 0, 0], opacity=0.05)
         scene.add(brain_actor)
 
         # Create an empty list for streamline actors
@@ -197,55 +129,55 @@ for sex in ['F', 'M']:
 
         scene.background((1, 1, 1))
 
-        if tid.startswith("L"):
-            scene.set_camera(position=(-511.45, -62.25, 13.31),
-                             focal_point=(2.00, -2.00, 8.00),
-                             view_up=(0.02, -0.11, 0.99))
+        # if tid.startswith("L"):
+        #     scene.set_camera(position=(-511.45, -62.25, 13.31),
+        #                      focal_point=(2.00, -2.00, 8.00),
+        #                      view_up=(0.02, -0.11, 0.99))
+        #
+        # elif "Callosum" in tid:
+        #     scene.set_camera(position=(-457.39, -45.17, 241.22),
+        #                      focal_point=(2.00, -2.00, 8.00),
+        #                      view_up=(0.46, -0.14, 0.88))
 
-        elif "Callosum" in tid:
-            scene.set_camera(position=(-457.39, -45.17, 241.22),
-                             focal_point=(2.00, -2.00, 8.00),
-                             view_up=(0.46, -0.14, 0.88))
-
-            window.show(scene, size=(1200, 1200), reset_camera=False)
+        window.show(scene, size=(1200, 1200), reset_camera=False)
             #
             # scene.camera_info()
 
-            os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
+            # os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
-            window.record(
-                scene=scene,
-                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_Left_{tid}.png'),
-                size=(1200, 1200))
-
-            scene.set_camera(position=(438.77, -86.28, 271.47),
-                             focal_point=(2.00, -2.00, 8.00),
-                             view_up=(-0.52, -0.02, 0.85))
-
-            window.show(scene, size=(1200, 1200), reset_camera=False)
+            # window.record(
+            #     scene=scene,
+            #     out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_Left_{tid}.png'),
+            #     size=(1200, 1200))
+            #
+            # scene.set_camera(position=(438.77, -86.28, 271.47),
+            #                  focal_point=(2.00, -2.00, 8.00),
+            #                  view_up=(-0.52, -0.02, 0.85))
+            #
+            # window.show(scene, size=(1200, 1200), reset_camera=False)
             #
             # scene.camera_info()
 
-            os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
+            # os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
-            window.record(
-                scene=scene,
-                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_Right_{tid}.png'),
-                size=(1200, 1200))
+            # window.record(
+            #     scene=scene,
+            #     out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_Right_{tid}.png'),
+            #     size=(1200, 1200))
 
-        else:
-            scene.set_camera(position=(516.43, -16.32, -41.44),
-                             focal_point=(2.00, -2.00, 8.00),
-                             view_up=(0.09, -0.05, 0.99))
+        # else:
+            # scene.set_camera(position=(516.43, -16.32, -41.44),
+            #                  focal_point=(2.00, -2.00, 8.00),
+            #                  view_up=(0.09, -0.05, 0.99))
 
-        if "Callosum" not in tid:
+        # if "Callosum" not in tid:
 
-            window.show(scene, size=(1200, 1200), reset_camera=False)
+            # window.show(scene, size=(1200, 1200), reset_camera=False)
 
             # scene.camera_info()
 
-            window.record(
-                scene=scene,
-                out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
-                size=(1200, 1200))
+            # window.record(
+            #     scene=scene,
+            #     out_path=op.join(out_folder, img_dir, f'{metric}_{sex}_{tid}.png'),
+            #     size=(1200, 1200))
 

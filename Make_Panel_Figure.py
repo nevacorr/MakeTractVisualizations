@@ -15,6 +15,8 @@ crop_top = 250
 crop_bottom = 200
 crop_left = 200
 crop_right = 200
+crop_top_callosum = 210
+crop_bottom_callosum = 180
 
 working_dir = os.getcwd()
 profdir = os.path.join(working_dir, 'tract_profiles_from_R')
@@ -37,50 +39,89 @@ make_legend(working_dir, 'Accelerated')
 make_legend(working_dir, 'Slowed')
 
 for tid in tract_ids:
-    print(f'{tid}')
-    p = tract_to_profile[tid]
-
     if "Callosum" in tid:
-        image_files = [f'{streamline_dir}/{metric}_F_{tid}.png',
-                   f'{streamline_dir}/{metric}_M_{tid}.png',
-                   f'{profdir}/tracts_{metric}_splits_100{p}_new_format.png',
-                   f'{profdir}/tracts_{metric}_splits_100{p}_new_format.png']
+        continue
     else:
+        print(f'{tid}')
+        p = tract_to_profile[tid]
+
         image_files = [f'{streamline_dir}/{metric}_F_Left_{tid}.png', f'{streamline_dir}/{metric}_F_Right_{tid}.png',
                    f'{streamline_dir}/{metric}_M_Left_{tid}.png',
-                   f'{streamline_dir}/{metric}_M_Right_{tid}.png', f'{profdir}/tracts_{metric}_splits_100Left {p}_new_format.png',
-                   f'{profdir}/tracts_{metric}_splits_100Right {p}_new_format.png']
+                   f'{streamline_dir}/{metric}_M_Right_{tid}.png', f'{profdir}/tracts_{metric}_splits_100Left {p}_new_format_gam.png',
+                   f'{profdir}/tracts_{metric}_splits_100Right {p}_new_format_gam.png']
 
-    # Create figure
-    fig, axes = plt.subplots(3, 2, figsize=(6, 8.4))
+        # Create figure
+        fig, axes = plt.subplots(3, 2, figsize=(6, 8.4))
 
-    # Flatten axes to a 1D list
-    axes = axes.ravel()
+        # Flatten axes to a 1D list
+        axes = axes.ravel()
 
-    # Loop through images and plot them
-    for i, (ax, img_path) in enumerate(zip(axes, image_files)):
-        img = mpimg.imread(img_path)  # Read image
+        # Loop through images and plot them
+        for i, (ax, img_path) in enumerate(zip(axes, image_files)):
+            img = mpimg.imread(img_path)  # Read image
 
-        # Crop only the first four images
-        if i < 4:
-            h, w, _ = img.shape  # Get image dimensions
-            img = img[crop_top:h - crop_bottom, crop_left:w - crop_right]
+            # Crop only the first four (brain) images (don't crop line plots)
+            if i < 4:
+                h, w, _ = img.shape  # Get image dimensions
+                img = img[crop_top:h - crop_bottom, crop_left:w - crop_right]
 
-        ax.imshow(img)  # Display image
-        ax.axis("off")
+            ax.imshow(img)  # Display image
+            ax.axis("off")
 
-    # Add text to the figure
-    fig.suptitle(f'{tid} {metric.upper()} ', fontsize=18, y=0.98, color='black', fontweight='bold')
-    fig.text(0.5, 0.90, f"Female", fontsize=18, ha='center', va='center', color='black')
-    fig.text(0.5, 0.59, f"Male", fontsize=18, ha='center', va='center', color='black')
-    fig.text(0.11, 0.86, "Left Hemisphere", fontsize=10, ha='center', va='center', color='black')
-    fig.text(0.88, 0.86, "Right Hemisphere", fontsize=10, ha='center', va='center', color='black')
-    fig.text(0.11, 0.573, "Left Hemisphere", fontsize=10, ha='center', va='center', color='black')
-    fig.text(0.88, 0.573, "Right Hemisphere", fontsize=10, ha='center', va='center', color='black')
+        # Add text to the figure
+        fig.suptitle(f'{tid} {metric.upper()} ', fontsize=18, y=0.98, color='black', fontweight='bold')
+        fig.text(0.5, 0.90, f"Female", fontsize=18, ha='center', va='center', color='black')
+        fig.text(0.5, 0.59, f"Male", fontsize=18, ha='center', va='center', color='black')
+        fig.text(0.11, 0.86, "Left Hemisphere", fontsize=10, ha='center', va='center', color='black')
+        fig.text(0.88, 0.86, "Right Hemisphere", fontsize=10, ha='center', va='center', color='black')
+        fig.text(0.11, 0.573, "Left Hemisphere", fontsize=10, ha='center', va='center', color='black')
+        fig.text(0.88, 0.573, "Right Hemisphere", fontsize=10, ha='center', va='center', color='black')
 
-    plt.tight_layout(rect=[0, 0, 1, 0.90])  # lower the top margin to leave space for suptitle
-    fig.subplots_adjust(top=0.85)  # indicates how close to the top the subplots are allowed to get
-    fig.subplots_adjust(bottom=0.01)
+        plt.tight_layout(rect=[0, 0, 1, 0.90])  # lower the top margin to leave space for suptitle
+        fig.subplots_adjust(top=0.85)  # indicates how close to the top the subplots are allowed to get
+        fig.subplots_adjust(bottom=0.01)
+
+for tid in tract_ids:
+    if "Callosum" in tid:
+        print(f'{tid}')
+        p = tract_to_profile[tid]
+
+        image_files = [f'{streamline_dir}/{metric}_F_{tid}.png',
+                       f'{streamline_dir}/{metric}_M_{tid}.png',
+                       f'{profdir}/tracts_{metric}_splits_100{p}_new_format_gam.png',
+                       f'{profdir}/tracts_{metric}_splits_100{p}_new_format_gam.png']
+
+        # Create figure
+        fig, axes = plt.subplots(3, 1, figsize=(4, 8.4))
+
+        # Flatten axes to a 1D list
+        axes = axes.ravel()
+
+        # Loop through images and plot them
+        for i, (ax, img_path) in enumerate(zip(axes, image_files)):
+            img = mpimg.imread(img_path)  # Read image
+
+            # Crop only the first two (brain) images (don't crop line plots)
+            if i < 2:
+                h, w, _ = img.shape  # Get image dimensions
+                img = img[crop_top_callosum:h - crop_bottom_callosum, crop_left:w - crop_right]
+
+            ax.imshow(img)  # Display image
+            ax.axis("off")
+
+        # Add text to the figure
+        fig.suptitle(f'{tid} {metric.upper()} ', fontsize=18, y=0.98, color='black', fontweight='bold')
+        fig.text(0.5, 0.90, f"Female", fontsize=18, ha='center', va='center', color='black')
+        fig.text(0.5, 0.59, f"Male", fontsize=18, ha='center', va='center', color='black')
+        fig.text(0.5, 0.86, "Anterior", fontsize=10, ha='center', va='center', color='black')
+        fig.text(0.5, 0.5, "Posterior", fontsize=10, ha='center', va='center', color='black')
+        fig.text(0.5, 0.573, "Anterior", fontsize=10, ha='center', va='center', color='black')
+        fig.text(0.5, 0.33, "Posterior", fontsize=10, ha='center', va='center', color='black')
+
+        plt.tight_layout(rect=[0, 0, 1, 0.90])  # lower the top margin to leave space for suptitle
+        fig.subplots_adjust(top=0.85)  # indicates how close to the top the subplots are allowed to get
+        fig.subplots_adjust(bottom=0.01)
+
 
     # plt.show()
 
@@ -97,7 +138,8 @@ for tid in tract_ids:
 
     save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
 
-    combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(245, 550))
+
+    combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(345, 550))
 
     combined_img.show()
 

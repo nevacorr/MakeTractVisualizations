@@ -127,7 +127,7 @@ for tid in tract_ids:
     # plt.show()
 
     os.makedirs(op.join(working_dir, 'panel_figures'), exist_ok=True)
-    plt.savefig(op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png'))
+    plt.savefig(op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png'), dpi=300)
 
     # Load figure and add legend figure to it
     panel_img_path = op.join(working_dir ,'panel_figures', f'figure_{metric}_{tid}.png')
@@ -140,11 +140,14 @@ for tid in tract_ids:
     save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
 
     if "Callosum" in tid:
-        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(155, 561))
+        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(375, 1680))
         combined_img.show()
+        mystop = 1
     else:
-        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(250, 550))
+        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(750, 1660))
         combined_img.show()
+
+
 
 
 

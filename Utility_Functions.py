@@ -82,7 +82,7 @@ def make_legend(working_dir, label):
     ax.text(0.3, 0.535, 'Male', color='black', fontsize=10, va='center')
     ax.text(0.3, 0.20, label, color='black', fontsize=10, va='center')
 
-    plt.savefig(op.join(working_dir, f'custom_legend_{label}.png'))
+    plt.savefig(op.join(working_dir, f'custom_legend_{label}.png'), dpi=300)
 
     # Show the figure
     # plt.show()
@@ -115,7 +115,7 @@ def overlay_images(big_image_path, small_image_path, save_path, position=(0, 0))
     combined_img.paste(small_img_rgba, (x_offset, y_offset), small_img_rgba)
 
     # Save the result to the specified path
-    combined_img.save(save_path)
+    combined_img.save(save_path, dpi=(300, 300))
 
     print(f"Image saved to {save_path}")
 

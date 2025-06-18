@@ -8,7 +8,7 @@ from Utility_Functions import make_legend, overlay_images
 import numpy as np
 from PIL import Image
 
-metric='md'
+metric='fa'
 
 # Define crop margins (top, bottom, left, right)
 crop_top = 250
@@ -62,6 +62,10 @@ for tid in tract_ids:
             if i < 2:
                 h, w, _ = img.shape  # Get image dimensions
                 img = img[crop_top_callosum:h - crop_bottom_callosum, crop_left:w - crop_right]
+
+            # Crop title off of line plots
+            if i >=2:
+                img[:110, :, :] = 1  # Set top 50 rows to 1 (white)
 
             ax.imshow(img)  # Display image
             ax.axis("off")
@@ -140,7 +144,7 @@ for tid in tract_ids:
     save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
 
     if "Callosum" in tid:
-        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(375, 1680))
+        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(455, 1680))
         combined_img.show()
         mystop = 1
     else:

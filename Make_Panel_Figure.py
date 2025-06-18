@@ -146,7 +146,6 @@ for tid in tract_ids:
     if "Callosum" in tid:
         combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(455, 1680))
         combined_img.show()
-        mystop = 1
     else:
         combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(750, 1660))
         combined_img.show()

@@ -75,9 +75,15 @@ for row_index, images in enumerate(rows_images):
         new_row_img.paste(img, (x_offset, 0))
         x_offset += img.width
 
-    # Draw horizontal top and bottom border lines for the entire row
-    draw.line([(0, 0), (final_width - 1, 0)], fill='black', width=2)
-    draw.line([(0, max_height - 1), (final_width - 1, max_height - 1)], fill='black', width=2)
+    # Draw horizontal lines only across the actual image area
+    left_edge = shift if row_index == 0 else 0
+    right_edge = left_edge + row_width
+
+    # Top border (for both rows)
+    draw.line([(left_edge, 0), (right_edge - 1, 0)], fill='black', width=2)
+
+    # Bottom border (for both rows)
+    draw.line([(left_edge, max_height - 1), (right_edge - 1, max_height - 1)], fill='black', width=2)
 
     # Add vertical lines at left and right edges of top row images only
     if row_index == 0:
@@ -98,11 +104,36 @@ for row_img in row_concat_images:
     final_img.paste(row_img, (0, y_offset))
     y_offset += row_img.height
 
-# Draw a border around the full image
+# Draw vertical lines at the boundaries of the second row's first and last image
+second_row_images = rows_images[1]
+x_left = 0  # Start of first image
+x_right = sum(img.width for img in second_row_images) + small_spacing + large_spacing * 2  # Right edge of last image
+
 draw_final = ImageDraw.Draw(final_img)
-draw_final.rectangle(
-    [0, 0, final_img.width - 1, final_img.height - 1],
-    outline='black',
+# Draw bottom-most horizontal line at bottom of full figure
+draw_final.line(
+    [(0, final_img.height - 1), (final_img.width - 1, final_img.height - 1)],
+    fill='black',
+    width=2
+)
+
+# Line before first image (second row)
+draw_final.line([(x_left, row_concat_images[0].height), (x_left, final_img.height)], fill='black', width=3)
+
+# Line after last image (second row)
+draw_final.line([(x_right, row_concat_images[0].height), (x_right, final_img.height)], fill='black', width=3)
+
+# Coordinates for where the bottom row starts
+bottom_row_top = row_concat_images[0].height
+bottom_row_height = row_concat_images[1].height
+bottom_row_img = row_concat_images[1]
+bottom_row_draw_width = row_widths[1]
+
+# Draw horizontal line at the bottom of the bottom row image
+# This must be within the canvas, so y = total height - 1
+draw_final.line(
+    [(0, final_img.height - 5), (bottom_row_draw_width - 1, final_img.height - 5)],
+    fill='black',
     width=2
 )
 

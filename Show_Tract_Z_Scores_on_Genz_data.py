@@ -11,7 +11,7 @@ from Utility_Functions import view_middle_slice, extract_fiber_dict
 
 subj='genz323'
 sex = 'M'
-metric = "md"
+metric = "fa"
 check_orientation_flag = 0
 working_dir = os.getcwd()
 out_folder = working_dir
@@ -109,13 +109,13 @@ for sex in ['F', 'M']:
 
             if sex == 'M':
                 # Make them blue
-                colors = np.tile([0, 0, 1], (len(interpolated_z_values), 1))
+                colors = np.tile([0., 0., 1.], (len(interpolated_z_values), 1))
             else:
                 # Make them red
-                colors = np.tile([1, 0, 0], (len(interpolated_z_values), 1))
+                colors = np.tile([1., 0., 0.], (len(interpolated_z_values), 1))
 
                 # Define a green
-            my_green = (0 / 255, 255 / 255, 0 / 255)  # Normalized RGB values
+            my_green = (0., 0.7, 0.)  # Normalized RGB values
 
             # Find indices where the interpolated p_values <0.05
             significant_mask = interpolated_p_values < 0.05

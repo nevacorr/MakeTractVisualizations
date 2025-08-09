@@ -57,7 +57,7 @@ def make_legend(working_dir, label):
     # Create a new figure
     fig, ax = plt.subplots(figsize=(1.3, 0.7))
 
-    my_green = (61 / 255, 178/ 255, 75 / 255)  # Normalized RGB values
+    my_green = (178 / 255, 4/ 255, 198 / 255)  # Normalized RGB values
 
     # Add lines (representing "Female", "Male", "Accelerated")
     line_female = mlines.Line2D([0, 0.2], [0.87, 0.87], color='red', lw=2, label='Female')

@@ -79,10 +79,10 @@ for tid in tract_ids:
         fig.suptitle(f'{tid.replace("_", " ")} {metric.upper()} ', fontsize=18, y=0.98, color='black', fontweight='bold')
         fig.text(0.5, 0.92, f"Female", fontsize=18, ha='center', va='center', color='black')
         fig.text(0.5, 0.606, f"Male", fontsize=18, ha='center', va='center', color='black')
-        fig.text(0.7, 0.90, "Anterior", fontsize=10, ha='center', va='center', color='black')
-        fig.text(0.7, 0.65, "Posterior", fontsize=10, ha='center', va='center', color='black')
-        fig.text(0.7, 0.585, "Anterior", fontsize=10, ha='center', va='center', color='black')
-        fig.text(0.7, 0.34, "Posterior", fontsize=10, ha='center', va='center', color='black')
+        fig.text(0.75, 0.90, "A", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.75, 0.65, "P", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.75, 0.585, "A", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.75, 0.34, "P", fontsize=14, ha='center', va='center', color='black')
 
         plt.tight_layout(rect=[0, 0, 1, 0.90])  # lower the top margin to leave space for suptitle
         fig.subplots_adjust(top=0.90)  # indicates how close to the top the subplots are allowed to get
@@ -119,10 +119,10 @@ for tid in tract_ids:
         fig.suptitle(f'{tid.replace("_", " ")} {metric.upper()} ', fontsize=18, y=0.98, color='black', fontweight='bold')
         fig.text(0.5, 0.90, f"Female", fontsize=18, ha='center', va='center', color='black')
         fig.text(0.5, 0.59, f"Male", fontsize=18, ha='center', va='center', color='black')
-        fig.text(0.11, 0.86, "Left Hemisphere", fontsize=10, ha='center', va='center', color='black')
-        fig.text(0.88, 0.86, "Right Hemisphere", fontsize=10, ha='center', va='center', color='black')
-        fig.text(0.11, 0.573, "Left Hemisphere", fontsize=10, ha='center', va='center', color='black')
-        fig.text(0.88, 0.573, "Right Hemisphere", fontsize=10, ha='center', va='center', color='black')
+        fig.text(0.11, 0.86, "L", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.88, 0.86, "R", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.11, 0.573, "L", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.88, 0.573, "R", fontsize=14, ha='center', va='center', color='black')
 
         plt.tight_layout(rect=[0, 0, 1, 0.90])  # lower the top margin to leave space for suptitle
         fig.subplots_adjust(top=0.85)  # indicates how close to the top the subplots are allowed to get

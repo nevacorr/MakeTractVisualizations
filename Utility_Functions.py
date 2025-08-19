@@ -57,13 +57,14 @@ def make_legend(working_dir, label):
     # Create a new figure
     fig, ax = plt.subplots(figsize=(1.3, 0.7))
 
-    my_green = (178 / 255, 4/ 255, 198 / 255)  # Normalized RGB values
+    my_purple = (0.62, 0.0, 0.62)
+    my_green = (0.1, 0.7, 0.26)  # Normalized RGB values
 
     # Add lines (representing "Female", "Male", "Accelerated")
-    line_female = mlines.Line2D([0, 0.2], [0.87, 0.87], color='red', lw=2, label='Female')
+    line_female = mlines.Line2D([0, 0.2], [0.87, 0.87], color=my_green, lw=2, label='Female')
     line_male = mlines.Line2D([0, 0.2], [0.535, 0.535], color='blue', lw=2, label='Male')
 
-    line_accel = mlines.Line2D([0, 0.2], [0.20, 0.20], color=my_green, lw=2, label=label)
+    line_accel = mlines.Line2D([0, 0.2], [0.20, 0.20], color=my_purple, lw=2, label=label)
 
     # Add lines to the axis
     ax.add_line(line_female)

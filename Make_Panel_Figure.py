@@ -21,6 +21,7 @@ crop_bottom_callosum = 180
 working_dir = os.getcwd()
 profdir = os.path.join(working_dir, 'tract_profiles_from_R')
 streamline_dir = os.path.join(working_dir, 'individual_modality_figs')
+os.makedirs(op.join(working_dir, 'panel_figures'), exist_ok=True)
 
 tract_ids = ['Arcuate', 'Thalamic_Radiation', 'IFOF', 'ILF', 'SLF', 'Uncinate', 'Corticospinal',
              'Callosum_Forceps_Major', 'Callosum_Forceps_Minor']
@@ -88,7 +89,81 @@ for tid in tract_ids:
         fig.subplots_adjust(top=0.90)  # indicates how close to the top the subplots are allowed to get
         fig.subplots_adjust(bottom=0.01)
 
-    else:
+        plt.savefig(op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png'), dpi=300)
+
+        # Load figure and add legend figure to it
+        panel_img_path = op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png')
+
+        save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
+        legend_img_path = op.join(working_dir, 'custom_legend_Accelerated.png')
+
+        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(455, 1680))
+        combined_img.show()
+
+    if any(sub in tid for sub in ["Arcuate", "ILF", "SLF"]):
+        p = tract_to_profile[tid]
+
+        for hem in ['Left', 'Right']:
+
+            image_files = [f'{streamline_dir}/{metric}_F_{hem}_{tid}.png',
+                           f'{streamline_dir}/{metric}_M_{hem}_{tid}.png',
+                           f'{profdir}/tracts_{metric}_splits_100{hem} {p}_new_format_gam.png',
+                           f'{profdir}/tracts_{metric}_splits_100{hem} {p}_new_format_gam.png']
+
+            # Create figure
+            fig, axes = plt.subplots(3, 1, figsize=(4, 8.4))
+
+            # Flatten axes to a 1D list
+            axes = axes.ravel()
+
+            # Loop through images and plot them
+            for i, (ax, img_path) in enumerate(zip(axes, image_files)):
+                img = mpimg.imread(img_path)  # Read image
+
+                # Crop only the first two (brain) images (don't crop line plots)
+                if i < 2:
+                    h, w, _ = img.shape  # Get image dimensions
+                    img = img[crop_top:h - crop_bottom, crop_left:w - crop_right]
+
+                # Crop title off of line plots
+                if i >=2:
+                    img[:110, :, :] = 1  # Set top 50 rows to 1 (white)
+
+                ax.imshow(img)  # Display image
+                ax.axis("off")
+
+            # # # Adjust the second axes position to move it down slightly
+            # pos1 = axes[1].get_position()  # get current position [x0, y0, width, height]
+            # new_y0 = pos1.y0 - 0.05  # move down by 0.05
+            # axes[1].set_position([pos1.x0, new_y0, pos1.width, pos1.height])
+
+            # Add text to the figure
+            fig.suptitle(f'{tid.replace("_", " ")} {metric.upper()} ', fontsize=18, y=0.98, color='black', fontweight='bold')
+            fig.text(0.5, 0.89, f"Female", fontsize=18, ha='center', va='center', color='black')
+            fig.text(0.5, 0.606, f"Male", fontsize=18, ha='center', va='center', color='black')
+            fig.text(0.5, 0.93, f'{hem} Hemisphere', fontsize=14, ha='center', va='center', color='black')
+            # fig.text(0.11, 0.573, f'{hem} Hemisphere', fontsize=14, ha='left', va='center', color='black')
+
+            plt.tight_layout(rect=[0, 0, 1, 0.90])  # lower the top margin to leave space for suptitle
+            fig.subplots_adjust(top=0.90)  # indicates how close to the top the subplots are allowed to get
+            fig.subplots_adjust(bottom=0.01)
+
+            plt.savefig(op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png'), dpi=300)
+
+            # Load figure and add legend figure to it
+            panel_img_path = op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png')
+
+            if (metric == 'fa' and tid in ['IFOF', 'ILF']):
+                legend_img_path = op.join(working_dir, 'custom_legend_Slowed.png')
+            else:
+                legend_img_path = op.join(working_dir, 'custom_legend_Accelerated.png')
+
+            save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}_{hem}.png')
+
+            combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(455, 1680))
+            combined_img.show()
+
+    if any(sub in tid for sub in ["Arcuate", "Corticospinal", "IFOF", "Uncinate", "Thalamic Radiation"]):
 
         p = tract_to_profile[tid]
 
@@ -119,34 +194,24 @@ for tid in tract_ids:
         fig.suptitle(f'{tid.replace("_", " ")} {metric.upper()} ', fontsize=18, y=0.98, color='black', fontweight='bold')
         fig.text(0.5, 0.90, f"Female", fontsize=18, ha='center', va='center', color='black')
         fig.text(0.5, 0.59, f"Male", fontsize=18, ha='center', va='center', color='black')
-        fig.text(0.11, 0.86, "L", fontsize=14, ha='center', va='center', color='black')
-        fig.text(0.88, 0.86, "R", fontsize=14, ha='center', va='center', color='black')
-        fig.text(0.11, 0.573, "L", fontsize=14, ha='center', va='center', color='black')
-        fig.text(0.88, 0.573, "R", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.26, 0.86, "Left", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.75, 0.86, "Right", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.26, 0.573, "Left", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.75, 0.573, "Right", fontsize=14, ha='center', va='center', color='black')
 
         plt.tight_layout(rect=[0, 0, 1, 0.90])  # lower the top margin to leave space for suptitle
         fig.subplots_adjust(top=0.85)  # indicates how close to the top the subplots are allowed to get
         fig.subplots_adjust(bottom=0.01)
 
-    # plt.show()
+        plt.savefig(op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png'), dpi=300)
 
-    os.makedirs(op.join(working_dir, 'panel_figures'), exist_ok=True)
-    plt.savefig(op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png'), dpi=300)
+        # Load figure and add legend figure to it
+        panel_img_path = op.join(working_dir ,'panel_figures', f'figure_{metric}_{tid}.png')
 
-    # Load figure and add legend figure to it
-    panel_img_path = op.join(working_dir ,'panel_figures', f'figure_{metric}_{tid}.png')
-
-    if (metric == 'fa' and tid in ['IFOF', 'ILF']):
-        legend_img_path = op.join(working_dir, 'custom_legend_Slowed.png')
-    else:
         legend_img_path = op.join(working_dir, 'custom_legend_Accelerated.png')
 
-    save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
+        save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
 
-    if "Callosum" in tid:
-        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(455, 1680))
-        combined_img.show()
-    else:
         combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(750, 1660))
         combined_img.show()
 

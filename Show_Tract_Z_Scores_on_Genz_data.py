@@ -31,9 +31,10 @@ for sex in ['F', 'M']:
     # Load tract statistics data
     z_score_filepath =f"{home_dir}/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
     if sex == "M":
-        z_score_filename = f"{metric}_100split_node_stats_male.csv"
+        z_score_filename = f"{metric}_node_stats_gam_male.csv" ##NOTE: CHECK WHERE THE GAM FILE P VALUES ARE COMPUTED
+                                                               ###THERE IS AN OLDER FILE CALLED 100 SPLITS
     else:
-        z_score_filename = f"{metric}_100split_node_stats_female.csv"
+        z_score_filename = f"{metric}_node_stats_gam_female.csv"
 
     # Set image data paths
     # ----------------------------
@@ -151,7 +152,7 @@ for sex in ['F', 'M']:
                              focal_point=(196.00, 213.50, 272.50),
                              view_up=(0.00, 1.00, -0.01))
 
-        # window.show(scene, size=(1200, 1200), reset_camera=False)
+        window.show(scene, size=(1200, 1200), reset_camera=False)
         # scene.camera_info()
         tid_no_spaces = tid.replace(' ', '_')
         window.record(

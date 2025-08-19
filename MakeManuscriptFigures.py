@@ -141,3 +141,46 @@ draw_final.line(
 save_path = pt.join(source_fig_dir, f"{metric}_combined_figure_with_lines.png")
 final_img.save(save_path, dpi=(300, 300))
 final_img.show()
+
+################################# FA FIGURE #################################
+metric = 'fa'
+
+# Define the regions and order of images per row for md
+tract_names = ["Arcuate", "ILF", "IFOF"]
+
+# Load images
+
+images = [Image.open(pt.join(source_fig_dir, f"combined_panel_figure_{metric}_{tract}.png")) for tract in tract_names]
+
+# Concatenate images horizontally
+
+small_spacing = 1     # small spacing between images for vertical line
+
+# Compute total dimensions
+total_width = sum(img.width for img in images) + small_spacing * (len(images) - 1)
+max_height = max(img.height for img in images)
+
+new_row_img = Image.new("RGBA", (total_width, max_height), (255, 255, 255, 255))  # white background
+
+draw = ImageDraw.Draw(new_row_img)
+
+x_offset = 0
+for i, img in enumerate(images):
+    # Add spacing *before* pasting the 2nd and 3rd image
+    if i > 0:
+        x_offset += small_spacing
+        draw.line([(x_offset - small_spacing // 2, 0), (x_offset - small_spacing // 2, max_height)], fill='black', width=3)
+
+    new_row_img.paste(img, (x_offset, 0))
+    x_offset += img.width
+
+# Add a box around the full image
+draw.rectangle(
+    [0, 0, total_width - 1, max_height - 1],
+    outline='black',
+    width=2
+)
+# Save or show
+save_path = pt.join(source_fig_dir, f"{metric} combined figure with lines.png")
+new_row_img.save(save_path, dpi=(300,300))
+new_row_img.show()

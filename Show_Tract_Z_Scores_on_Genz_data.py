@@ -109,19 +109,19 @@ for sex in ['F', 'M']:
 
             if sex == 'M':
                 # Make them blue
-                colors = np.tile([0., 0., 1.], (len(interpolated_z_values), 1))
+                colors = np.tile([0., 0., 0.9], (len(interpolated_z_values), 1))
             else:
-                # Make them red
-                colors = np.tile([1., 0., 0.], (len(interpolated_z_values), 1))
+                # Make them green
+                colors = np.tile([0.1, 0.7, 0.26], (len(interpolated_z_values), 1))
 
-                # Define a yellow
-            my_yellow = (0.70, 0.02, 0.78)  # Normalized RGB values
+            # Define a purple
+            my_purple = (0.62, 0.0, 0.62)  # Normalized RGB values
 
             # Find indices where the interpolated p_values <0.05
             significant_mask = interpolated_p_values < 0.05
 
             # Override colors for significant values
-            colors[significant_mask] = my_yellow
+            colors[significant_mask] = my_purple
 
             if check_orientation_flag == 1:
                 colors = check_orientation(interpolated_z_values)

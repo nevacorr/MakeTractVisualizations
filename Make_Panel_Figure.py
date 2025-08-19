@@ -8,7 +8,7 @@ from Utility_Functions import make_legend, overlay_images
 import numpy as np
 from PIL import Image
 
-metric='fa'
+metric='md'
 
 # Define crop margins (top, bottom, left, right)
 crop_top = 250

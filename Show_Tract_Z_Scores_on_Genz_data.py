@@ -11,7 +11,7 @@ from Utility_Functions import view_middle_slice, extract_fiber_dict
 
 subj='genz323'
 sex = 'M'
-metric = "md"
+metric = "fa"
 check_orientation_flag = 0
 working_dir = os.getcwd()
 out_folder = working_dir
@@ -31,8 +31,7 @@ for sex in ['F', 'M']:
     # Load tract statistics data
     z_score_filepath =f"{home_dir}/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
     if sex == "M":
-        z_score_filename = f"{metric}_node_stats_gam_male.csv" ##NOTE: CHECK WHERE THE GAM FILE P VALUES ARE COMPUTED
-                                                               ###THERE IS AN OLDER FILE CALLED 100 SPLITS
+        z_score_filename = f"{metric}_node_stats_gam_male.csv"
     else:
         z_score_filename = f"{metric}_node_stats_gam_female.csv"
 
@@ -109,20 +108,20 @@ for sex in ['F', 'M']:
             # Apply a colormap to non significant values.
 
             if sex == 'M':
-                # Make them blue
-                colors = np.tile([0., 0., 0.9], (len(interpolated_z_values), 1))
+                # Make them purple
+                colors = np.tile([0.89, 0., 0.89], (len(interpolated_z_values), 1))
             else:
                 # Make them green
                 colors = np.tile([0.1, 0.7, 0.26], (len(interpolated_z_values), 1))
 
-            # Define a purple
-            my_purple = (0.62, 0.0, 0.62)  # Normalized RGB values
+            # Define a blue
+            my_blue = (0.0, 0.0, 1.0)  # Normalized RGB values
 
             # Find indices where the interpolated p_values <0.05
             significant_mask = interpolated_p_values < 0.05
 
             # Override colors for significant values
-            colors[significant_mask] = my_purple
+            colors[significant_mask] = my_blue
 
             if check_orientation_flag == 1:
                 colors = check_orientation(interpolated_z_values)
@@ -152,7 +151,7 @@ for sex in ['F', 'M']:
                              focal_point=(196.00, 213.50, 272.50),
                              view_up=(0.00, 1.00, -0.01))
 
-        window.show(scene, size=(1200, 1200), reset_camera=False)
+        # window.show(scene, size=(1200, 1200), reset_camera=False)
         # scene.camera_info()
         tid_no_spaces = tid.replace(' ', '_')
         window.record(

@@ -11,7 +11,7 @@ from Utility_Functions import view_middle_slice, extract_fiber_dict
 
 subj='genz323'
 sex = 'M'
-metric = "fa"
+metric = "md"
 check_orientation_flag = 0
 working_dir = os.getcwd()
 out_folder = working_dir
@@ -108,20 +108,20 @@ for sex in ['F', 'M']:
             # Apply a colormap to non significant values.
 
             if sex == 'M':
-                # Make them purple
-                colors = np.tile([0.89, 0., 0.89], (len(interpolated_z_values), 1))
-            else:
                 # Make them green
-                colors = np.tile([0.1, 0.7, 0.26], (len(interpolated_z_values), 1))
+                colors = np.tile([0.11, 0.62, 0.47], (len(interpolated_z_values), 1))
+            else:
+                # Make them purple
+                colors = np.tile([0.46, 0.44, 0.70], (len(interpolated_z_values), 1))
 
-            # Define a blue
-            my_blue = (0.0, 0.0, 1.0)  # Normalized RGB values
+            # Define an orange
+            my_orange = (0.85, 0.37, 0.01)  # Normalized RGB values
 
             # Find indices where the interpolated p_values <0.05
             significant_mask = interpolated_p_values < 0.05
 
             # Override colors for significant values
-            colors[significant_mask] = my_blue
+            colors[significant_mask] = my_orange
 
             if check_orientation_flag == 1:
                 colors = check_orientation(interpolated_z_values)

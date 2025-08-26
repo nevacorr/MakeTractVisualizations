@@ -99,9 +99,18 @@ def overlay_images(big_image_path, small_image_path, save_path, position=(0, 0))
     - save_path: Path where the combined image will be saved.
     - position: Tuple (x, y) specifying the top-left position of the small image on the big image.
     """
+    # Define number of pixesls to crop from top off small image
+    crop_bottom_pixels = 25
+
     # Load the big image and small image
     big_img = Image.open(big_image_path)
     small_img = Image.open(small_image_path)
+
+    # Get current size
+    width, height = small_img.size
+
+    # Crop small image
+    small_img = small_img.crop((0, 0, width, height - crop_bottom_pixels))
 
     # Ensure both images are in RGBA mode to handle transparency properly
     big_img_rgba = big_img.convert("RGBA")
@@ -145,3 +154,58 @@ def extract_fiber_dict(mat_file):
     names = [''.join([chr(ii) for ii in np.squeeze(np.array(data[name[jj][0]][:]))])
              for jj in range(20)]
     return dict(zip(names, coords))
+
+def print_axis_size(fig, axes):
+    fig_width, fig_height = fig.get_size_inches()
+
+    for i, ax in enumerate(axes):
+        pos = ax.get_position()
+
+        # Normalized
+        norm_x0, norm_y0, norm_w, norm_h = pos.x0, pos.y0, pos.width, pos.height
+
+        # Absolute in inches
+        abs_x0_in = norm_x0 * fig_width
+        abs_y0_in = norm_y0 * fig_height
+        abs_w_in = norm_w * fig_width
+        abs_h_in = norm_h * fig_height
+
+        print(f"Axis {i}:")
+        # print(f"  Normalized: x0={norm_x0:.3f}, y0={norm_y0:.3f}, width={norm_w:.3f}, height={norm_h:.3f}")
+        print(f"  Inches: x0={abs_x0_in:.3f}, y0={abs_y0_in:.3f}, width={abs_w_in:.3f}, height={abs_h_in:.3f}")
+
+def resize_line_plot(pos6, fig6_width, fig6_height, fig, axes):
+
+    # Make size of lineplot match that from 6 axis figure
+    # First get width and height in inches
+    target_width = pos6.width * fig6_width
+    target_height = pos6.height * fig6_height
+    # Get figure size of 3 axis figure
+    fig3_width, fig3_height = fig.get_size_inches()
+    # Convert target size to normalized coordinates for 3 axis figure
+    norm_width = target_width / fig3_width
+    norm_height = target_height / fig3_height
+    # Get current position of last axis in 3 axis figure
+    pos3 = axes[2].get_position()
+    norm_x0 = pos3.x0  # keep the same horizontal alignment
+    norm_y0 = pos3.y0 + (pos3.height - norm_height) / 2  # vertically center
+    # Set the new position
+    axes[2].set_position([norm_x0, norm_y0, norm_width, norm_height])
+
+def resize_line_plot_callosum(pos6, fig6_width, fig6_height, fig, axes):
+
+    # Make size of lineplot match that from 6 axis figure
+    # First get width and height in inches
+    target_width = pos6.width * fig6_width
+    target_height = pos6.height * fig6_height
+    # Get figure size of 3 axis figure
+    fig3_width, fig3_height = fig.get_size_inches()
+    # Convert target size to normalized coordinates for 3 axis figure
+    norm_width = target_width / fig3_width
+    norm_height = target_height / fig3_height
+    # Get current position of last axis in 3 axis figure
+    pos3 = axes[2].get_position()
+    norm_x0 = pos3.x0  # keep the same horizontal alignment
+    norm_y0 = pos6.y0
+    # Set the new position
+    axes[2].set_position([norm_x0, norm_y0, norm_width, norm_height])

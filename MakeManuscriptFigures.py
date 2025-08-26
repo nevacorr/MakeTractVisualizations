@@ -6,8 +6,8 @@ source_fig_dir = '/Users/nevao/PycharmProjects/MakeTractVisualizations/panel_fig
 metric = 'md'
 
 tract_names = [
-    ["Thalamic_Radiation", "IFOF", "ILF"],
-    ["Arcuate", "SLF", "Callosum_Forceps_Major", "Callosum_Forceps_Minor"]
+    ["Thalamic_Radiation", "IFOF", "ILF_Right", ],
+    ["Arcuate", "SLF_Right", "Callosum_Forceps_Major", "Callosum_Forceps_Minor"]
 ]
 
 # Load images by row
@@ -146,7 +146,7 @@ final_img.show()
 metric = 'fa'
 
 # Define the regions and order of images per row for md
-tract_names = ["Arcuate", "ILF", "IFOF"]
+tract_names = ["Arcuate_Left", "ILF_Right", "IFOF_Right"]
 
 # Load images
 

@@ -157,6 +157,29 @@ for tid in tract_ids:
             resize_line_plot(pos6, fig6_width, fig6_height, fig, axes)
             print_axis_size(fig, axes)
 
+            # Cover up a little of the title visible in the line plot axis
+            # Get the last axis and the image extent
+            last_ax = axes[2]
+            img = last_ax.images[0]  # the image you plotted with imshow
+
+            # Get axis limits in display coordinates
+            x0, x1 = last_ax.get_xlim()
+            y0, y1 = last_ax.get_ylim()
+
+            # Decide how much vertical fraction to cover (0-1)
+            cover_frac = 0.09  # cover top 10% of the image
+
+            # Draw a white rectangle over the top portion
+            last_ax.add_patch(
+                plt.Rectangle(
+                    (x0, y1 - cover_frac * (y1 - y0)),  # bottom-left corner of rectangle
+                    x1 - x0,  # width of rectangle
+                    cover_frac * (y1 - y0),  # height of rectangle
+                    color='white',
+                    zorder=10  # make sure it's on top
+                )
+            )
+
             plt.savefig(op.join(working_dir, 'panel_figures', f'figure_{metric}_{tid}.png'), dpi=300)
 
             # Load figure and add legend figure to it

@@ -167,7 +167,7 @@ for tid in tract_ids:
             y0, y1 = last_ax.get_ylim()
 
             # Decide how much vertical fraction to cover (0-1)
-            cover_frac = 0.09  # cover top 10% of the image
+            cover_frac = 0.09  # cover top 9% of the image
 
             # Draw a white rectangle over the top portion
             last_ax.add_patch(

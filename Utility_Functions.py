@@ -13,9 +13,9 @@ def load_z_p_data(filepath, filename, tract):
 
     df['Tract'] = df['Tract'].str.replace('.', '_', regex=False)
 
-    z = df.loc[df["Tract"] == tract, "Z_mean"].values
     adjp = df.loc[df["Tract"] == tract, "adjusted_p_value"].values
-    return z, adjp
+
+    return adjp
 
 def lines_as_tubes(sl, line_width, **kwargs):
     line_actor = actor.line(sl, **kwargs)
@@ -35,7 +35,7 @@ def trim_to_central_60(streamlines):
     return trimmed_streamlines
 
 
-def check_orientation(interpolated_z_values):
+def check_orientation(interpolated_p_values):
     def position_to_color(index, num_values):
         """Map position to a blue-white-red RGB color."""
         if index < num_values // 3:
@@ -46,7 +46,7 @@ def check_orientation(interpolated_z_values):
             return [1, 0, 0]  # Red for the last third
 
     # Get the number of elements in interpolated_z_values
-    num_values = len(interpolated_z_values)
+    num_values = len(interpolated_p_values)
 
     # Generate colors based on position
     colors = np.array([position_to_color(i, num_values) for i in range(num_values)])

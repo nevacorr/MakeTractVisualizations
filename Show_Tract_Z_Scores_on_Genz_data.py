@@ -11,7 +11,7 @@ from Utility_Functions import view_middle_slice, extract_fiber_dict
 
 subj='genz323'
 sex = 'M'
-metric = "md"
+metric = "fa"
 check_orientation_flag = 0
 working_dir = os.getcwd()
 out_folder = working_dir
@@ -31,9 +31,9 @@ for sex in ['F', 'M']:
     # Load tract statistics data
     z_score_filepath =f"{home_dir}/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
     if sex == "M":
-        z_score_filename = f"{metric}_node_stats_gam_male.csv"
+        z_score_filename = f"{metric}_node_sig_stats_from_ttest_male.csv"
     else:
-        z_score_filename = f"{metric}_node_stats_gam_female.csv"
+        z_score_filename = f"{metric}_node_sig_stats_from_ttest_female.csv"
 
     # Set image data paths
     # ----------------------------

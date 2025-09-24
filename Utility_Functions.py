@@ -8,13 +8,19 @@ import os.path as op
 from PIL import Image
 import h5py
 
-def load_z_p_data(filepath, filename, tract):
+def load_z_p_data(filepath, filename, tract, sig_tracts):
+
     df = pd.read_csv(f"{filepath}{filename}")
+
+    # Keep significant p-values for tracts that showed overall significance
+    df.loc[~df['tract'].isin(sig_tracts), 'P_value'] = 0.6
+
+    df = df.rename(columns={"tract": "Tract"})
 
     df['Tract'] = df['Tract'].str.replace('.', '_', regex=False)
 
     z = df.loc[df["Tract"] == tract, "Z_mean"].values
-    adjp = df.loc[df["Tract"] == tract, "adjusted_p_value"].values
+    adjp = df.loc[df["Tract"] == tract, "P_value"].values
     return z, adjp
 
 def lines_as_tubes(sl, line_width, **kwargs):

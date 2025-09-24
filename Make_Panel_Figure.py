@@ -45,8 +45,8 @@ for tid in tract_ids:
 
         image_files = [f'{streamline_dir}/{metric}_F_Left_{tid}.png', f'{streamline_dir}/{metric}_F_Right_{tid}.png',
                    f'{streamline_dir}/{metric}_M_Left_{tid}.png',
-                   f'{streamline_dir}/{metric}_M_Right_{tid}.png', f'{profdir}/tracts_{metric}_splits_100Left {p}_new_format_gam.png',
-                   f'{profdir}/tracts_{metric}_splits_100Right {p}_new_format_gam.png']
+                   f'{streamline_dir}/{metric}_M_Right_{tid}.png', f'{profdir}/tracts_{metric}_splits_100Left {p}_from_muncy_.png',
+                   f'{profdir}/tracts_{metric}_splits_100Right {p}_from_muncy_.png']
 
         # Create figure
         fig, axes = plt.subplots(3, 2, figsize=(6, 8.4))
@@ -112,7 +112,7 @@ for tid in tract_ids:
 
             image_files = [f'{streamline_dir}/{metric}_F_{hem}_{tid}.png',
                            f'{streamline_dir}/{metric}_M_{hem}_{tid}.png',
-                           f'{profdir}/tracts_{metric}_splits_100{hem} {p}_new_format_gam.png'
+                           f'{profdir}/tracts_{metric}_splits_100{hem} {p}_from_muncy_.png'
             ]
 
             # Create figure
@@ -200,8 +200,8 @@ for tid in tract_ids:
 
         image_files = [f'{streamline_dir}/{metric}_F_{tid}.png',
                        f'{streamline_dir}/{metric}_M_{tid}.png',
-                       f'{profdir}/tracts_{metric}_splits_100{p}_new_format_gam.png',
-                       f'{profdir}/tracts_{metric}_splits_100{p}_new_format_gam.png']
+                       f'{profdir}/tracts_{metric}_splits_100{p}_from_muncy_.png',
+                       f'{profdir}/tracts_{metric}_splits_100{p}_from_muncy_.png']
 
         # Create figure
         fig, axes = plt.subplots(3, 1, figsize=(4, 8.4))

@@ -10,7 +10,6 @@ from Utility_Functions import load_z_p_data, lines_as_tubes, trim_to_central_60,
 from Utility_Functions import view_middle_slice, extract_fiber_dict
 
 subj='genz323'
-sex = 'M'
 metric = "fa"
 check_orientation_flag = 0
 working_dir = os.getcwd()
@@ -18,6 +17,18 @@ out_folder = working_dir
 home_dir = os.path.expanduser("~")
 img_dir = 'individual_modality_figs' # directory to place output images into
 use_highres_for_glass_brain = 1
+# Define significant tracts based on metric
+if metric == "md":
+    sig_tracts_male = ["Left.Thalamic.Radiation", "Right.Thalamic.Radiation"]
+    sig_tracts_female = [
+        "Left.Thalamic.Radiation", "Right.Thalamic.Radiation",
+        "Callosum.Forceps.Major", "Callosum.Forceps.Minor",
+        "Left.IFOF", "Right.IFOF", "Right.ILF",
+        "Left.Arcuate", "Right.Arcuate", "Right.SLF"
+    ]
+elif metric == "fa":
+    sig_tracts_male = ["Right.ILF", "Right.IFOF"]
+    sig_tracts_female = ["Left.Arcuate"]
 
 os.makedirs(op.join(out_folder, img_dir), exist_ok=True)
 
@@ -31,9 +42,9 @@ for sex in ['F', 'M']:
     # Load tract statistics data
     z_score_filepath =f"{home_dir}/Documents/GenZ/Genz White Matter Myelin covid analysis/Z_score_by_node/one_hundred_splits/"
     if sex == "M":
-        z_score_filename = f"{metric}_node_sig_stats_from_ttest_male.csv"
+        z_score_filename = f"{metric}_node_sig_stats_muncy_male.csv"
     else:
-        z_score_filename = f"{metric}_node_sig_stats_from_ttest_female.csv"
+        z_score_filename = f"{metric}_node_sig_stats_muncy_female.csv"
 
     # Set image data paths
     # ----------------------------
@@ -59,15 +70,16 @@ for sex in ['F', 'M']:
                  if not any(s in item for s in substrings_to_remove)
                  ]
 
-    if metric == 'mpf':
-        tract_ids.remove('Left Uncinate')
-        tract_ids.remove('Right Uncinate')
-
     for tid in tract_ids:
         print(tid)
 
+        if sex == "M":
+            sig_tracts = sig_tracts_male
+        else:
+            sig_tracts = sig_tracts_female
+
         # Load zscore values
-        zvect, pvect = load_z_p_data(z_score_filepath, z_score_filename, tid.replace(' ', '_'))
+        zvect, pvect = load_z_p_data(z_score_filepath, z_score_filename, tid.replace(' ', '_'), sig_tracts)
 
         # Load tract streamlines
         sft = StatefulTractogram(fiber_dict[tid],

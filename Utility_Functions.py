@@ -61,7 +61,7 @@ def check_orientation(interpolated_z_values):
 
 def make_legend(working_dir, label):
     # Create a new figure
-    fig, ax = plt.subplots(figsize=(1.3, 0.7))
+    fig, ax = plt.subplots(figsize=(1.8, 0.7))
 
     my_purple = (0.46, 0.44, 0.70)
     my_green = (0.11, 0.62, 0.47)  # Normalized RGB values
@@ -86,9 +86,9 @@ def make_legend(working_dir, label):
     ax.axis('off')
 
     # Add custom text labels for each line (to mimic a legend)
-    ax.text(0.3, 0.87, 'Female', color='black', fontsize=10, va='center')
-    ax.text(0.3, 0.535, 'Male', color='black', fontsize=10, va='center')
-    ax.text(0.3, 0.20, label, color='black', fontsize=10, va='center')
+    ax.text(0.3, 0.87, 'Female', color='black', fontsize=12, va='center')
+    ax.text(0.3, 0.535, 'Male', color='black', fontsize=12, va='center')
+    ax.text(0.3, 0.20, label, color='black', fontsize=12, va='center')
 
     plt.savefig(op.join(working_dir, f'custom_legend_{label}.png'), dpi=300)
 

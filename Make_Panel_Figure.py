@@ -72,10 +72,10 @@ for tid in tract_ids:
 
         # Add text to the figure
         fig.suptitle(f'{tid.replace("_", " ")} {metric.upper()} ', fontsize=18, y=0.98, color='black', fontweight='bold')
-        fig.text(0.5, 0.9, f"Female", fontsize=18, ha='center', va='center', color='black')
+        fig.text(0.5, 0.90, f"Female", fontsize=18, ha='center', va='center', color='black')
         fig.text(0.5, 0.61, f"Male", fontsize=18, ha='center', va='center', color='black')
-        fig.text(0.26, 0.93, "Left Hemisphere", fontsize=12, ha='center', va='center', color='black')
-        fig.text(0.75, 0.93, "Right Hemisphere", fontsize=12, ha='center', va='center', color='black')
+        fig.text(0.26, 0.93, "Left Hemisphere", fontsize=14, ha='center', va='center', color='black')
+        fig.text(0.75, 0.93, "Right Hemisphere", fontsize=14, ha='center', va='center', color='black')
 
         plt.tight_layout(rect=[0, 0, 1, 0.90])  # lower the top margin to leave space for suptitle
         fig.subplots_adjust(top=0.90)  # indicates how close to the top the subplots are allowed to get
@@ -100,7 +100,7 @@ for tid in tract_ids:
 
         save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
 
-        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(750, 1660))
+        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(680, 1660))
         combined_img.show()
 
 
@@ -139,9 +139,9 @@ for tid in tract_ids:
 
             # Add text to the figure
             fig.suptitle(f'{tid.replace("_", " ")} {metric.upper()} ', fontsize=18, y=0.98, color='black', fontweight='bold')
-            fig.text(0.5, 0.9, f"Female", fontsize=18, ha='center', va='center', color='black')
+            fig.text(0.5, 0.90, f"Female", fontsize=18, ha='center', va='center', color='black')
             fig.text(0.5, 0.61, f"Male", fontsize=18, ha='center', va='center', color='black')
-            fig.text(0.5, 0.93, f'{hem} Hemisphere', fontsize=12, ha='center', va='center', color='black')
+            fig.text(0.5, 0.93, f'{hem} Hemisphere', fontsize=14, ha='center', va='center', color='black')
 
             plt.tight_layout(rect=[0, 0, 1, 0.90])  # lower the top margin to leave space for suptitle
             fig.subplots_adjust(top=0.90)  # indicates how close to the top the subplots are allowed to get
@@ -192,7 +192,7 @@ for tid in tract_ids:
 
             save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}_{hem}.png')
 
-            combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(455, 1660))
+            combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(385, 1660))
             combined_img.show()
 
     if "Callosum" in tid:
@@ -255,7 +255,7 @@ for tid in tract_ids:
         save_img_path = op.join(working_dir, 'panel_figures', f'combined_panel_figure_{metric}_{tid}.png')
         legend_img_path = op.join(working_dir, 'custom_legend_Accelerated.png')
 
-        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(455, 1680))
+        combined_img = overlay_images(panel_img_path, legend_img_path, save_img_path, position=(405, 1680))
         combined_img.show()
 
 
